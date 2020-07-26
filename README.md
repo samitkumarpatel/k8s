@@ -22,7 +22,8 @@ overview , why k8s is popular and useful.
 
 For more details, explore [k8s componeant](https://kubernetes.io/docs/concepts/overview/components/)
 
-**Control Plane Components**
+**Control Plane Components (master)**
+
 The control plane's components make global decisions about the cluster (for example, scheduling), as well as detecting and responding to cluster events (for example, starting up a new pod when a deployment's replicas field is unsatisfied).
 
 - **kube-apiserver** : The API server is a component of the Kubernetes control plane that exposes the Kubernetes API. The API server is the front end for the Kubernetes control plane
@@ -32,6 +33,7 @@ The control plane's components make global decisions about the cluster (for exam
 - **cloud-controller-manager** : A Kubernetes control plane component that embeds cloud-specific control logic. The cloud controller manager lets you link your cluster into your cloud provider's API, and separates out the components that interact with that cloud platform from components that just interact with your cluster.
 
 **Node Components**
+
 Node components run on every node, maintaining running pods and providing the Kubernetes runtime environment.
 
 - **kubelet** : An agent that runs on each node in the cluster. It makes sure that containers are running in a Pod.
@@ -39,6 +41,7 @@ Node components run on every node, maintaining running pods and providing the Ku
 - **Container runtime** : The container runtime is the software that is responsible for running containers.
 
 **Addons** 
+
 Addons use Kubernetes resources (DaemonSet, Deployment, etc) to implement cluster features. Because these are providing cluster-level features, namespaced resources for addons belong within the kube-system namespace.
 
 - DNS
@@ -74,6 +77,7 @@ kubectl apply -f ....
 ```
 
 #### Controller
+
 There are many Controller to deal with in k8s. Below are the details :
 
 - ReplicationController
@@ -90,6 +94,7 @@ There are many Controller to deal with in k8s. Below are the details :
 
 
 **ReplicationController**
+
 >Note: A Deployment that configures a ReplicaSet is now the recommended way to set up replication.
 
 A ReplicationController ensures that a specified number of pod replicas are running at any one time. In other words, a ReplicationController makes sure that a pod or a homogeneous set of pods is always up and available.
@@ -180,6 +185,7 @@ kubectl delete -f controllers/replicaset/rs-defination.yml
 ```
 
 **Deployments**
+
 A Deployment provides declarative updates for Pods and ReplicaSets.
 
 You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate. You can define Deployments to create new ReplicaSets, or to remove existing Deployments and adopt all their resources with new Deployments.
@@ -226,6 +232,7 @@ kubectl delete deployments.apps nginx-deployment
 
 
 ### Service , Load Balancing & Networking
+
 Concepts and resources behind networking in Kubernetes.
 
 Kubernetes networking addresses four concerns:
