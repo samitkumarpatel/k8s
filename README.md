@@ -16,6 +16,8 @@ overview , why k8s is popular and useful.
 
 [k8s workload](https://kubernetes.io/docs/concepts/workloads/)
 
+[pull image from privare registry](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
 ##### k8s componeant
 
 ![alt text](./.tmp/k8s-componeant.png "k8s_componeant")
