@@ -12,16 +12,16 @@ resource "azurerm_resource_group" "k8s" {
     location = var.location
 }
 
-resource "azurerm_public_ip" "example" {
-  name                = var.pip_name
-  resource_group_name = azurerm_resource_group.k8s.name
-  location            = azurerm_resource_group.k8s.location
-  allocation_method   = "Static"
-  domain_name_label   = "k8s001dns"
-  tags = {
-    Environment = "Development"
-  }
-}
+# resource "azurerm_public_ip" "example" {
+#   name                = var.pip_name
+#   resource_group_name = azurerm_resource_group.k8s.name
+#   location            = azurerm_resource_group.k8s.location
+#   allocation_method   = "Static"
+#   domain_name_label   = "k8s001dns"
+#   tags = {
+#     Environment = "Development"
+#   }
+# }
 
 resource "azurerm_container_registry" "acr" {
   name                     = var.acr_name

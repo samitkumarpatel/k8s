@@ -6,10 +6,10 @@ output "host" {
     value = azurerm_kubernetes_cluster.k8s.kube_config.0.host
 }
 
-output "public_ip_address" {
-   value = azurerm_public_ip.example.ip_address
-}
+# output "public_ip_address" {
+#    value = azurerm_public_ip.example.ip_address
+# }
 
-output "public_ip_fqdn" {
-    value = azurerm_public_ip.example.fqdn
-}
+# output "public_ip_fqdn" {
+#     value = azurerm_public_ip.example.fqdn
+# }
