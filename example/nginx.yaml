@@ -20,13 +20,13 @@ spec:
         image: nginx:latest
         ports:
         - containerPort: 80
-        # resources:
-        #   requests:
-        #     memory: "32mi"
-        #     cpu: "200m"
-        #   limits:
-        #     memory: "26mi"
-        #     cpu: "250m"
+        resources:
+          requests:
+            memory: "32mi"
+            cpu: "200m"
+          limits:
+            memory: "26mi"
+            cpu: "250m"
 ---
 apiVersion: v1
 kind: Service

@@ -1,0 +1,9 @@
+agent_count = 1
+ssh_public_key = "~/.ssh/id_rsa.pub"
+dns_prefix = "aks001"
+cluster_name = "aks001"
+node_pool_name = "akspool001"
+resource_group_name = "aks001"
+location = "West Europe"
+acr_name = "acr01azwe001"
+pip_name = "aks001pip01"

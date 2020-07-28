@@ -1,1 +1,65 @@
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-deployment
+  labels:
+    app: hello-world
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      imagePullSecrets:
+      - name: aks-registry-secret
+      containers:
+      - name: hello-world
+        image: acr01azwe001.azurecr.io/demo/hello-world:0.0.2-SNAPSHOT
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: MESSAGE
+          value: "message from manifest"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: hello-world
+  ports:
+    - name: hello-world-port
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+# ---
+# apiVersion: networking.k8s.io/v1beta1
+# kind: Ingress
+# metadata:
+#   name: hello-world-ingress
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+# spec:
+#   rules:
+#   - host: k8s001dns.westeurope.cloudapp.azure.com
+#     http:
+#       paths:
+#       - path: /(.*)
+#         backend:
+#           serviceName: hello-world-service
+#           servicePort: 8080
