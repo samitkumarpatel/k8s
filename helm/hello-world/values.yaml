@@ -1,0 +1,7 @@
+replicaCount: 3
+name: "hello-world"
+message: "from helm"
+image: 
+  name: "hello-world"
+  version: "0.0.2-SNAPSHOT"
+

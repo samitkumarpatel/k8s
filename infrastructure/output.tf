@@ -13,3 +13,7 @@ output "host" {
 # output "public_ip_fqdn" {
 #     value = azurerm_public_ip.example.fqdn
 # }
+
+output "local_config" {
+   value = ""
+}

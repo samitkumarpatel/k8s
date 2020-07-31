@@ -12,16 +12,6 @@ resource "azurerm_resource_group" "k8s" {
     location = var.location
 }
 
-# resource "azurerm_public_ip" "example" {
-#   name                = var.pip_name
-#   resource_group_name = azurerm_resource_group.k8s.name
-#   location            = azurerm_resource_group.k8s.location
-#   allocation_method   = "Static"
-#   domain_name_label   = "k8s001dns"
-#   tags = {
-#     Environment = "Development"
-#   }
-# }
 
 resource "azurerm_container_registry" "acr" {
   name                     = var.acr_name
@@ -42,7 +32,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     location            = azurerm_resource_group.k8s.location
     resource_group_name = azurerm_resource_group.k8s.name
     dns_prefix          = var.dns_prefix
-    #node_resource_group = ""
+    node_resource_group = "${var.cluster_name}_nodepool01"
     linux_profile {
         admin_username = "ubuntu"
 
@@ -78,3 +68,14 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 #         Environment = "Production"
 #     }
 # }
+
+resource "azurerm_public_ip" "example" {
+  name                = var.pip_name
+  resource_group_name = azurerm_resource_group.k8s.name
+  location            = azurerm_resource_group.k8s.location
+  allocation_method   = "Static"
+  domain_name_label   = "k8s001dns"
+  tags = {
+    Environment = "Development"
+  }
+}
