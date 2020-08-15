@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-deployment-two
+  labels:
+    app: hello-world-two
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-world-two
+  template:
+    metadata:
+      labels:
+        app: hello-world-two
+    spec:
+      imagePullSecrets:
+      - name: aks-registry-secret
+      containers:
+      - name: hello-world-two
+        image: acr01azwe001.azurecr.io/demo/hello-world:20200810.4
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: MESSAGE
+          value: "deployment-2"
+        resources:
+          requests:
+            cpu: 10m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-service-two
+spec:
+  type: ClusterIP
+  selector:
+    app: hello-world-two
+  ports:
+    - name: hello-world-two-port
+      port: 8080
