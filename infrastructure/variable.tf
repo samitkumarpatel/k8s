@@ -1,5 +1,5 @@
-variable "client_secret" {}
 
+variable "ARM_CLIENT_SECRET" {}
 variable "agent_count" {
     
 }

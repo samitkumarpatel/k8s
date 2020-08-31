@@ -43,7 +43,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 
     service_principal {
         client_id     = data.azurerm_client_config.current.client_id
-        client_secret = var.client_secret
+        client_secret = var.ARM_CLIENT_SECRET
     }
 
     default_node_pool {
