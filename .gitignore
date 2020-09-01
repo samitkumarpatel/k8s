@@ -3,3 +3,4 @@
 .terraform
 .idea
 azurek8s
+.k8s

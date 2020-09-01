@@ -1,5 +1,5 @@
 agent_count = 1
-ssh_public_key = "~/.ssh/id_rsa.pub"
+ssh_public_key = ".k8s.pub"
 dns_prefix = "aks001"
 cluster_name = "aks001"
 node_pool_name = "akspool001"
