@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypodtwo
+spec:
+  containers:
+  - image: nginx:1.15.5-alpine
+    name: mypodtwo
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    volumeMounts:
+      - name: azure
+        mountPath: /mnt/test
+  volumes:
+      - name: azure
+        azureDisk:
+          kind: Managed
+          diskName: aks001-disk01
+          diskURI: /subscriptions/749b7ec9-adc4-4923-91bc-73c272e5144e/resourceGroups/aks001_nodepool01/providers/Microsoft.Compute/disks/aks001-disk01

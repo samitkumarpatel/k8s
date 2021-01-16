@@ -5,6 +5,12 @@ provider "azurerm" {
 
 terraform {
   required_version = ">= 0.12.0"
+  backend "azurerm" {
+    resource_group_name  = "tfstate01"
+    storage_account_name = "saazwetfstate001"
+    container_name       = "tfstate"
+    key                  = "k8s-local.terraform.tfstate"
+  }
 }
 
 resource "azurerm_resource_group" "k8s" {
@@ -56,6 +62,19 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     tags = {
         Environment = "Development"
     }
+}
+
+resource "azurerm_managed_disk" "example" {
+  name                 = "aks001-disk01"
+  location             = azurerm_resource_group.k8s.location
+  resource_group_name  = azurerm_kubernetes_cluster.k8s.node_resource_group
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "20"
+
+  tags = {
+        Environment = "Development"
+  }
 }
 
 # resource "azurerm_kubernetes_cluster_node_pool" "example" {
