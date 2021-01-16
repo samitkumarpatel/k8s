@@ -88,6 +88,8 @@ Addons use Kubernetes resources (DaemonSet, Deployment, etc) to implement cluste
 
 ___ 
 
+a nice thing to make use of while working with k8s [click for more details](https://github.com/jpetazzo/shpod) 
+
 Syntex, example and Official documantation Reference :
 
 #### Pod
