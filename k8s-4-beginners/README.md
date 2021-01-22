@@ -35,7 +35,7 @@ The Kind and Version table
 |----|-------|
 |POD|v1|
 |Service|v1|
-|ReplicaSet|app/v1|
+|ReplicaSet|apps/v1|
 |Deployment|apps/v1|
 
 **pod**
@@ -120,6 +120,57 @@ to scale the ReplicaSet, there are number of ways
 2. `kubectl scale --replicas=6 -f fineName.yaml`
 or
 kubectl scale --replicas=6 replicaset nameOfTheReplicaSet
+
+**Deployment**
+is a k8s Object,thats comes higher in the hirerchy. It has many features like:
+- rolling update
+- undo changes
+- pause
+- resume changes as required
+
+Defination : is similar to ReplicaSet except kind: Deployment
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:
+  labels:
+    key: value
+spec:
+  template:
+    metadata:
+       name:
+       labels:
+         key:value
+    spec:
+     containers:
+     - image:
+       name: 
+  replicas: 2
+  selector:
+    matchLabels:
+       key: value
+
+```
+
+Below are the command to make use of Deployment
+
+- `kubectl create -f deployment.yaml` - will create a new deployment
+- `kubectl get deployment` - will listout all the deployment available in the current context namespace
+- `kubectl get rs` - you can see a replica set with the name deployment
+- `kubectl get pods` - will show all the pods running with the current context and current namespace which are also created by the deployment
+
+Example: can be found on the deployment folder
+
+**Update & Rollback - Deployment **
+A new deployment create a new rollout. a new rollout create a new revision
+
+Below are the command to chech the status and history
+```
+kubectl rollout status deployment/deploymentName :  status of the rollout
+kubectl rollout history deploymentName : will show the history with revision / changes-cause of a rollout
+```
+
 
 
 **service**
