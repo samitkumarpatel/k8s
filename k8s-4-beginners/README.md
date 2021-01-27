@@ -165,12 +165,87 @@ Example: can be found on the deployment folder
 **Update & Rollback - Deployment **
 A new deployment create a new rollout. a new rollout create a new revision
 
-Below are the command to chech the status and history
+Below are the command to check the status and history of a deployment
+
 ```
 kubectl rollout status deployment/deploymentName :  status of the rollout
-kubectl rollout history deploymentName : will show the history with revision / changes-cause of a rollout
+kubectl rollout history  deployment/deploymentName: will show the history with revision / changes-cause of a rollout
+```
+If you notice the `kubectl rollout history ..` command will show 2 column like this
+
+```
+REVISION  CHANGE-CAUSE
+1         <none>
+```
+The reason column CHANGE-CAUSE show <none>, because we have not specified the cause during creation of the deployment. To do that follow the below command
+
+```
+kubectl create -f fileName.yaml --record
+```
+
+***Update***
+
+k8s has several stratergy to deal with deployments  
+- Rolling Update
+- 
+-
+
+so when you deploy a new version a stratergy has to be applied so that k8s wil create a different replicaset and spawn up new pod with new version and in the same time it will remove the old version pod from old replicaset
+
+you can also change the image version number from a deployment by using below command
+```
+kubectl set image deployment/deploymentName imageName=imageName:new.version
+kubectl set image deployment myapp-deployment nginx=nginx:latest
+```
+But it will change on the fly and your deployment file will have the old configuration. so the good practice will be do the change on the manifest file and apply the update stratergy.
+
+example
+```
+
+```
+
+***Rollback***
+If something went wrong during the deployment , you need to rollback your deployment . if you have folloed the k8s upgrade stratergy you could simply do that with below commands:
+
+
+
+```
+kubectl rollout undo deployment/deploymentName
+To check: kubectl get replicaset
+```
+
+**Networking in k8s**
+- each pod in k8s cluster get his own IP address
+- All container/PODs can communicate to one another without NAT
+- All nodes can communicate will all containers and vice-versa without NAT
+- But while provision k8s , we no need to take this care as there are many products available to make use of i.e. cisco, vmware nsx, cilium, flanne
+
+**service**
+There are various type of service in k8s to make the traffice out or set communication with in pods
+- NodePort
+- ClusterIP
+- LoadBalancer
+
+***NodePort***
+This is a machanism to map a port from k8s Node to a port from a pods.
+- targetPort - will be the pod port
+- port - are the service port
+- NodePort: is the port from Node. it has to be valida range between 30000-32767 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: serviceName
+spec:
+  type: NodePort
+  ports:
+  - targetPort: portOfPod 
+    port: servicePort
+    nodePort: NodePortRangeBetween30000_32767
+  selector:
+   # labels from deployment
 ```
 
 
-
-**service**
+all the other example of service type are available on the service directory for your reference
