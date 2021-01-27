@@ -39,6 +39,7 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     resource_group_name = azurerm_resource_group.k8s.name
     dns_prefix          = var.dns_prefix
     node_resource_group = "${var.cluster_name}_nodepool01"
+    #enable_node_public_ip = true
     linux_profile {
         admin_username = "ubuntu"
 
