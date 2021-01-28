@@ -1,0 +1,91 @@
+---
+#configMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins
+data: 
+  jcac.yaml: |-
+    jenkins:
+      systemMessage: "Hello, Welcome to Jenkins on k8s!"
+      agentProtocols:
+        - "JNLP4-connect"
+        - "Ping"
+      crumbIssuer:
+        standard:
+          excludeClientIPFromCrumb: true
+      disableRememberMe: false
+      markupFormatter: "plainText"
+      mode: NORMAL
+      myViewsTabBar: "standard"
+      numExecutors: 5
+      securityRealm:
+        local:
+          allowsSignup: false
+          enableCaptcha: false
+          users:
+            - id: "admin"
+              password: "admin123"
+            - id: "user"
+              password: "user123"
+      authorizationStrategy:
+        globalMatrix:
+          permissions:
+          - "Agent/Build:user"
+          - "Job/Build:user"
+          - "Job/Cancel:user"
+          - "Job/Read:user"
+          - "Overall/Read:user"
+          - "View/Read:user"
+          - "Overall/Read:anonymous"
+          - "Overall/Administer:admin"
+          - "Overall/Administer:root"
+---
+#deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  labels:
+    app: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+       app: jenkins 
+  template:
+    spec:
+      containers:
+      - image: samitkumarpatel/jenkins:lts
+        name: jenkins
+        volumeMounts:
+        - name: jcac
+          mountPath: /var/jenkins_home/casc_configs
+        env:
+        - name: JAVA_OPTS
+          value: "-Djenkins.install.runSetupWizard=false"
+        - name: CASC_JENKINS_CONFIG
+          value: "/var/jenkins_home/casc_configs/jcac.yaml"
+      volumes:
+      - name: jcac
+        configMap:
+          name: jenkins
+    metadata:
+      name: jenkins
+      labels:
+        app: jenkins
+
+---
+#service
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+spec:
+  type: NodePort
+  ports:
+  - targetPort: 8080
+    port: 8080
+    nodePort: 30008
+  selector:
+    app: jenkins
