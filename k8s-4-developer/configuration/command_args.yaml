@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: ubuntu-sleepy
+spec:
+  containers:
+  - name: k8s-4-developer
+    image: k8s-4-developer
+    args: ["100"]
+    #command: ["echo"]
