@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data : 
+  nginx.conf: |
+    events {}
+    http {
+      index    index.html index.htm index.php;
+      default_type application/octet-stream;
+      
+      sendfile     on;
+      tcp_nopush   on;
+      server_names_hash_bucket_size 128;
+
+
+      upstream ui_x {
+        server localhost:3000 weight=5;
+      }
+
+      upstream backend_x {
+        server backend:3000 weight=5;
+      }
+
+      server {
+
+        location / {
+          proxy_pass      http://ui_x;
+        }
+        location /backend/ping {
+          proxy_pass      http://backend_x/ping;
+        }
+        location /backend/info {
+          proxy_pass      http://backend_x/info;
+        }
+      }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sidecar-ui
+  name: sidecar-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-ui
+  template:
+    metadata:
+      labels:
+        app: sidecar-ui
+    spec:
+      containers:
+      - image: samitkumarpatel/sidecar-container/ui
+        name: ui
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+      - image: nginx
+        name: fake-ingress
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx
+          readOnly: true
+          name: nginx-conf
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: sidecar-service
+  name: sidecar-service
+spec:
+  ports:
+  - name: "80"
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: "3000"
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: sidecar-ui
+  type: NodePort

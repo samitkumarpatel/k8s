@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sidecar-backend
+  name: sidecar-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-backend
+  template:
+    metadata:
+      labels:
+        app: sidecar-backend
+    spec:
+      containers:
+      - image: samitkumarpatel/sidecar-container/backend
+        name: backend
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: backend
+  name: backend
+spec:
+  ports:
+  - name: "3000"
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: sidecar-backend
+  type: ClusterIP
+  clusterIP: "None"

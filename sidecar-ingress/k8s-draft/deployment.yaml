@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sidecar-ui
+  name: sidecar-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-ui
+  template:
+    metadata:
+      labels:
+        app: sidecar-ui
+    spec:
+      containers:
+      - image: samitkumarpatel/sidecar-container/ui
+        name: ui
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+      - image: nginx
+        name: fake-ingress
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /etc/nginx
+          readOnly: true
+          name: nginx-conf
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sidecar-backend
+  name: sidecar-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-backend
+  template:
+    metadata:
+      labels:
+        app: sidecar-backend
+    spec:
+      containers:
+      - image: samitkumarpatel/sidecar-container/backend
+        name: backend
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          
+      
+      

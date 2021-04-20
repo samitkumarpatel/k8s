@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data : 
+  nginx.conf: |
+    http {
+      index    index.html index.htm index.php;
+      default_type application/octet-stream;
+      
+      sendfile     on;
+      tcp_nopush   on;
+      server_names_hash_bucket_size 128;
+
+
+      upstream ui_x {
+        server localhost:3000 weight=5;
+      }
+
+      upstream backend_x {
+        server backend:3000 weight=5;
+      }
+
+      server {
+
+        location / {
+          proxy_pass      http://ui_x;
+        }
+        location /backend/ping {
+          proxy_pass      http://backend_x/ping;
+        }
+        location /backend/info {
+          proxy_pass      http://backend_x/info;
+        }
+      }
+    }

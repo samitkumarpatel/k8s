@@ -4,3 +4,5 @@
 .idea
 azurek8s
 .k8s
+**/node_modules/**
+node_modules

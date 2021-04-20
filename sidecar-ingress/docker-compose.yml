@@ -1,0 +1,19 @@
+version: "3.3"
+services:    
+    ui:
+        image: samitkumarpatel/sidecar-container/ui
+        build:
+            context: ./ui
+            dockerfile: Dockerfile
+    backend:
+        image: samitkumarpatel/sidecar-container/backend
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+    nginx:
+        image: nginx
+        ports: 
+            - "80:80"
+        volumes:
+            - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+    
