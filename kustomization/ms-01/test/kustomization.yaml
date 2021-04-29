@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+  - "./../../base"
+namespace: "test"
+namePrefix: "test-"
+commonLabels:
+  env: test
+  version: "1.0"
+configMapGenerator:
+  - name: config-env
+    env: env.env
+  - name: config-prop
+    files:
+      - "application.properties"

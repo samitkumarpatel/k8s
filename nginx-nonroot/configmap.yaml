@@ -1,0 +1,66 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    error_log /tmp/error.log;
+    # The pidfile will be written to /var/run unless this is set.
+    pid /tmp/nginx.pid;
+
+    worker_processes 1;
+
+    events {
+      worker_connections 1024;
+    }
+    http {
+      # Set an array of temp and cache file options that will otherwise default to
+      # restricted locations accessible only to root.
+      client_body_temp_path /tmp/client_body;
+      fastcgi_temp_path /tmp/fastcgi_temp;
+      proxy_temp_path /tmp/proxy_temp;
+      scgi_temp_path /tmp/scgi_temp;
+      uwsgi_temp_path /tmp/uwsgi_temp;
+
+      tcp_nopush on;
+      tcp_nodelay on;
+      keepalive_timeout 65;
+      types_hash_max_size 2048;
+
+      index index.html index.htm index.php;
+
+      default_type application/octet-stream;
+      server {
+            listen 80 default_server;
+            listen [::]:80 default_server ipv6only=on;
+            server_name  localhost;
+
+            location / {
+                root   /usr/share/nginx/html;
+                index  index.html index.htm;
+            }
+
+            #error_page  404              /404.html;
+
+            # redirect server error pages to the static page /50x.html
+            #
+            error_page   500 502 503 504  /50x.html;
+            location = /50x.html {
+                root   /usr/share/nginx/html;
+            }
+        }
+    }
+  virtualhost.conf: |
+    upstream app {
+      server localhost:8080;
+      keepalive 1024;
+    }
+    server {
+     
+      location / {
+        proxy_pass http://app/;
+        proxy_http_version 1.1;
+      }
+    }
+

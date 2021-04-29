@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ms-01
+  name: ms-01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-01
+  template:
+    metadata:
+      labels:
+        app: ms-01
+    spec:
+      containers:
+      - image: ms-01
+        name: ms-01
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: config-env
+        volumeMounts:
+        - name: prop-vol
+          mountPath: /usr/src/app/prop
+      volumes:
+      - name: prop-vol
+        configMap:
+          name: config-prop
+          items:
+            - key: application.properties
+              path: application.properties
