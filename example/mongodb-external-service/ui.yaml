@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongo-express
+  name: mongo-express
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - image: mongo-express
+        name: mongo-express
+        envFrom:
+        - configMapRef:
+            name: mongo-express
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mongo-express
+  name: mongo-express
+spec:
+  ports:
+  - name: "8081-tcp"
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: mongo-express
+  type: NodePort
