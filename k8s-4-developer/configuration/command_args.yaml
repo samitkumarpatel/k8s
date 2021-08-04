@@ -8,3 +8,10 @@ spec:
     image: k8s-4-developer
     args: ["100"]
     #command: ["echo"]
+    resources:
+      limits:
+        cpu: 20Mi
+        memory: 200Mi
+      requests:
+        cpu: 20Mi
+        memory: 200Mi
