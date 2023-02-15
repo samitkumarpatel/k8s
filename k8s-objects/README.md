@@ -248,8 +248,46 @@ Note: You need either kube-dns version 1.7 or CoreDNS version 0.0.8 or higher to
 
 You can also use Ingress to expose your Service. Ingress is not a Service type, but it acts as the entry point for your cluster. It lets you consolidate your routing rules into a single resource as it can expose multiple services under the same IP address
 
+- **Service to Service call**:
 
+'<service.name>.<namespace name>.svc.cluster.local or <service.name>.<namespace name>'
 
+HTTP/HTTPS across namespace ref : http://<service-name>.<namespace-name>.svc.cluster.local
+
+If you want to use it as a host and want to resolve it,
+'''
+                Use : <service name> (Use if in same namespace)
+                Use : <service.name>.<namespace name> (Use if across namespace)
+                Use : <service.name>.<namespace name>.svc.cluster.local (FQDN)
+'''
+If you are using ambassador to any other API gateway for a service located in another namespace it's always suggested to use short fqdn but it's also fine to use full however make sure it's not auto appending .svc.cluster.local :
+'''
+            Use : <service name>
+            Use : <service.name>.<namespace name>
+            Not : <service.name>.<namespace name>.svc.cluster.local
+'''
+For example, servicename.namespacename.svc.cluster.local,
+
+Description
+
+This will send a request to a particular service inside the namespace you have mentioned.
+
+Extra :
+
+External name service Ref
+
+If you are using the External name as service to resolve the name internally you can use the below for ref
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: service
+spec:
+  type: ExternalName
+  externalName: <servicename>.<namespace>.svc.cluster.local
+Here, replace the <servicename> and <namespace> with the appropriate values.
+
+In Kubernetes, namespaces are used to create virtual environment but all are connected with each other through specific DNS convention.
 
 
 **Service Topology**
