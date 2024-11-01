@@ -1,0 +1,87 @@
+---
+- name: Setup Kubernetes Cluster
+  hosts: all
+  remote_user: ubuntu
+  become: true
+  gather_facts: true
+- name: Setup Kubernetes Cluster
+  hosts: all
+  become: yes
+  tasks:
+    - name: Disable firewall
+      ansible.builtin.systemd_service:
+        name: ufw
+        state: stopped
+        enabled: false
+
+    - name: Disable swap
+      ansible.builtin.shell: swapoff -a
+
+    - name: Remove swap entry from fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^(.*swap.*)'
+        state: absent
+
+    - name: Install Kubernetes dependencies
+      ansible.builtin.apt:
+        update_cache: yes
+        state: present
+        pkg:
+        - docker.io
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - gpg
+
+    - name: Add user to the docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Ensure Docker service is enabled and started
+      ansible.builtin.systemd_service:
+        state: started
+        name: docker    
+        enabled: yes
+
+    - name: Ensure the keyring directory exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download and dearmor the Kubernetes signing key
+      ansible.builtin.shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key |
+        gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes apt repository
+      ansible.builtin.apt_repository:
+        repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /'
+        state: present
+        filename: kubernetes
+        update_cache: yes
+    
+    - name: Update apt package index
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Kubernetes components
+      ansible.builtin.apt:
+        update_cache: yes
+        state: present
+        pkg:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    - name: Enable and start kubelet service
+      ansible.builtin.systemd:
+        name: kubelet
+        enabled: yes
+        state: started
+  # to be continue ... 
+  # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#initializing-your-control-plane-node
