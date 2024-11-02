@@ -9,4 +9,5 @@ azurek8s
 node_modules
 id_rsa.pem
 .vscode
-keys
+**/keys/**
+config
