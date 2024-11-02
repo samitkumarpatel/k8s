@@ -24,6 +24,9 @@ provider "aws" {
 
 locals {
   region        = "eu-north-1"
+
+  ami           = "ami-08eb150f611ca277f"
+  instance_type = "t3.medium"
   workers_count = 2
   tags = {
     infra = "k8s-ec2"
@@ -211,8 +214,8 @@ resource "aws_network_interface" "public_ni" {
 
 # ec2
 resource "aws_instance" "manager" {
-  ami           = "ami-08eb150f611ca277f"
-  instance_type = "t3.medium"
+  ami           = local.ami
+  instance_type = local.instance_type
 
   network_interface {
     network_interface_id = aws_network_interface.public_ni.id
@@ -241,8 +244,8 @@ resource "aws_network_interface" "private_ni" {
 
 resource "aws_instance" "worker" {
   count         = local.workers_count
-  ami           = "ami-0014ce3e52359afbd"
-  instance_type = "t3.micro"
+  ami           = local.ami
+  instance_type = local.instance_type
   key_name      = aws_key_pair.foo.key_name
   #associate_public_ip_address = false
 
