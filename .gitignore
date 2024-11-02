@@ -1,6 +1,6 @@
 *.tfstate
 *.backup
-**/.terraform/**
+**/.terraform
 *.hcl
 .idea
 azurek8s
@@ -9,5 +9,5 @@ azurek8s
 node_modules
 id_rsa.pem
 .vscode
-**/keys/**
+**/keys
 config
