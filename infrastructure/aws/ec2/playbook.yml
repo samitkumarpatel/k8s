@@ -89,6 +89,7 @@
 
     - name: Install Kubernetes components
       ansible.builtin.apt:
+        update_cache: yes
         state: present
         pkg:
         - kubelet
@@ -107,7 +108,7 @@
   tasks:
     - name: Initialize Kubernetes control plane
       ansible.builtin.shell: |
-        kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans={{ ansible_ssh_host }}
+        kubeadm init --pod-network-cidr=10.244.0.0/16
       args:
         creates: /etc/kubernetes/admin.conf
 
@@ -146,10 +147,10 @@
 - name: Setup Worker Nodes
   hosts: worker
   become: true
-  tags: worker
   tasks:
     - name: Join the Kubernetes cluster
-      ansible.builtin.shell: |
-        "{{ hostvars[groups['manager'][0]]['kube_join_token_command'] }}"
+      ansible.builtin.shell: 
+        cmd: |
+          "{{ hostvars[groups['manager'][0]]['kube_join_token_command'] }}"
       register: worker_join
       failed_when: "worker_join.rc != 0"

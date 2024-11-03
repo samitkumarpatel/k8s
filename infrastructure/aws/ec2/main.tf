@@ -172,6 +172,20 @@ resource "aws_security_group" "worker_sg" {
     cidr_blocks = [data.aws_subnet.public.cidr_block]
   }
 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_subnet.public.cidr_block]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_subnet.public.cidr_block]
+  }
+
   ingress { 
     from_port = 10250 
     to_port = 10250 
@@ -282,6 +296,7 @@ resource "ansible_host" "manager" {
     ansible_ssh_private_key_file = "id_rsa.pem"
     ansible_connection           = "ssh"
     ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
+    ansible_python_interpreter   = "/usr/bin/python3"
   }
 }
 
@@ -294,5 +309,6 @@ resource "ansible_host" "worker" {
     ansible_ssh_private_key_file = "id_rsa.pem"
     ansible_connection           = "ssh"
     ansible_ssh_common_args      = "-o StrictHostKeyChecking=no -o ProxyCommand='ssh -W %h:%p -q ubuntu@${aws_instance.manager.public_ip} -i id_rsa.pem'"
+    ansible_python_interpreter   = "/usr/bin/python3"
   }
 }
