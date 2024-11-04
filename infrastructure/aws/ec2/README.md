@@ -59,11 +59,50 @@ ansible-playbook -i inventory.yml playbook.yml --syntax-check
 **user creation**
 
 ```sh
-    openssl genrsa -out samit.key 2048
-    openssl req -new -key samit.key -out samit.csr -subj "/CN=samit"
-    sudo openssl x509 -req -in samit.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out samit.crt -days 30
+openssl genrsa -out samit.key 2048
+openssl req -new -key samit.key -out samit.csr -subj "/CN=samit"
+sudo openssl x509 -req -in samit.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out samit.crt -days 30
 
-   kubectl config set-credentials samit --client-certificate=samit.crt --client-key=samit.key
-   kubectl config set-context samit --cluster=kubernetes --namespace=default --user=samit
-   kubectl create rolebinding samit-binding --clusterrole=view --user=samit --namespace=default
+# all access
+kubectl create clusterrolebinding samit-admin-binding --clusterrole=cluster-admin --user=samit
+
+# OR
+# minimal access
+kubectl create rolebinding samit-binding --clusterrole=view --user=samit --namespace=default
+
+
+kubectl config set-credentials samit --client-certificate=samit.crt --client-key=samit.key
+kubectl config set-context samit --cluster=kubernetes --namespace=default --user=samit
+   
+```
+
+**kubeconfig file creation**
+```sh
+# Step 1: Set the cluster details
+kubectl config set-cluster kubernetes --server=https://<server-address>:6443 \
+  --certificate-authority=samit.crt \
+  --embed-certs=true
+
+# Step 2: Set the user credentials
+kubectl config set-credentials samit \
+  --client-certificate=samit.crt \
+  --client-key=samit.key \
+  --embed-certs=true
+
+# Step 3: Set the context
+kubectl config set-context samit \
+  --cluster=kubernetes \
+  --namespace=default \
+  --user=samit
+
+# Step 4: Set the context as the current context
+kubectl config use-context samit
+
+```
+
+**Access the cluster**
+
+```sh
+kubectl --insecure-skip-tls-verify get nodes
+kubectl --insecure-skip-tls-verify get pods
 ```
