@@ -11,3 +11,6 @@ id_rsa.pem
 .vscode
 **/keys
 config
+*.key
+*.crt
+*.csr

@@ -56,11 +56,12 @@ ansible -i inventory.yml all -m ping
 ansible-playbook -i inventory.yml playbook.yml --syntax-check
 ```
 
-**user creation**
+**User creation**
+or [follow](https://kubernetes.io/docs/tasks/administer-cluster/certificates/#openssl) documents.
 
 ```sh
 openssl genrsa -out samit.key 2048
-openssl req -new -key samit.key -out samit.csr -subj "/CN=samit"
+openssl req -new -key samit.key -out samit.csr -subj "/CN=samit" -subj "/CN=51.20.250.97"
 sudo openssl x509 -req -in samit.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out samit.crt -days 30
 
 # all access
@@ -68,16 +69,17 @@ kubectl create clusterrolebinding samit-admin-binding --clusterrole=cluster-admi
 
 # OR
 # minimal access
-kubectl create rolebinding samit-binding --clusterrole=view --user=samit --namespace=default
+kubectl create rolebinding samit-binding --clusterrole=view --user=samit --namespace=default   
+```
 
+**Kubeconfig file creation**
+```sh
 
 kubectl config set-credentials samit --client-certificate=samit.crt --client-key=samit.key
 kubectl config set-context samit --cluster=kubernetes --namespace=default --user=samit
-   
-```
 
-**kubeconfig file creation**
-```sh
+
+
 # Step 1: Set the cluster details
 kubectl config set-cluster kubernetes --server=https://<server-address>:6443 \
   --certificate-authority=samit.crt \
@@ -98,6 +100,30 @@ kubectl config set-context samit \
 # Step 4: Set the context as the current context
 kubectl config use-context samit
 
+```
+
+**Sample config**
+
+```sh
+apiVersion: v1
+kind: Config
+preferences: {}
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://172.31.22.155:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+current-context: kubernetes-admin@kubernetes
 ```
 
 **Access the cluster**

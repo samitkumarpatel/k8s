@@ -149,28 +149,6 @@
       ansible.builtin.set_fact:
         kube_join_token_command: "{{ kube_join_command.stdout }}"
 
-    # - name: Generate a private key for samit
-    #   community.crypto.openssl_privatekey:
-    #     path: "samit.key"
-    #     size: 2048
-    #     type: RSA
-
-    # - name: Generate a CSR for samit
-    #   community.crypto.openssl_csr:
-    #     path: "samit.csr"
-    #     privatekey_path: "samit.key"
-    #     subject: "/CN=samit"
-
-    # - name: Sign the CSR with the CA to create a certificate for samit
-    #   ansible.builtin.shell: 
-    #     cmd: |
-    #       openssl x509 -req -in samit.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out samit.crt -days 30
-    
-    - name: Give access to user samit
-      ansible.builtin.shell: kubectl create clusterrolebinding samit-admin-binding --clusterrole=cluster-admin --user=samit
-      environment:
-        KUBECONFIG: /etc/kubernetes/admin.conf
-
 - name: Setup Worker Nodes
   hosts: worker
   become: true
