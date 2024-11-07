@@ -81,13 +81,14 @@ ansible-playbook -i inventory.yml playbook.yml --syntax-check
 
 # Generate certificate for the user
 openssl req -new -newkey rsa:2048 -nodes -keyout samit.key -out samit.csr -subj "/CN=samit"
+
 sudo openssl x509 -req -in samit.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out samit.crt -days 30
 
 # RBAC for the user
 kubectl create clusterrolebinding samit-admin-binding --clusterrole=cluster-admin --user=samit
 
 # Create kubeconfig file for the user
-kubectl config set-cluster ec2-k8s --certificate-authority=/etc/kubernetes/pki/ca.crt --embed-certs=true --server=https://51.20.142.74:6443 --kubeconfig=samit-kubeconfig
+kubectl config set-cluster ec2-k8s --certificate-authority=/etc/kubernetes/pki/ca.crt --embed-certs=true --server=https://<cluster_vm_public_ip>:6443 --kubeconfig=samit-kubeconfig
 
 kubectl config set-credentials samit --client-certificate=samit.crt --client-key=samit.key --embed-certs=true --kubeconfig=samit-kubeconfig
 
@@ -98,6 +99,11 @@ kubectl config use-context ec2-k8s-samit-context --kubeconfig=samit-kubeconfig
 # Test
 kubectl --kubeconfig=samit-kubeconfig get pods
 kubectl --kubeconfig=samit-kubeconfig get nodes
+
+# or
+export KUBECONFIG=$(pwd)/samit-kubeconfig
+kubectl get pods
+kubectl getnodes
  
 ```
 
@@ -108,6 +114,7 @@ kubectl --kubeconfig=samit-kubeconfig get nodes
 ```sh
 #user=amit
 openssl req -new -newkey rsa:2048 -nodes -keyout amit.key -out amit.csr -subj "/CN=amit"
+
 sudo openssl x509 -req -in amit.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out amit.crt -days 30
 
 kubectl create rolebinding amit-binding --clusterrole=view --user=amit --namespace=default
@@ -165,10 +172,19 @@ Now it's time to copy both the config file i.e. `amit-kubeconfig` and `samit-kub
 
 You are done! You should be able to use both the config file and access kubernetes cluster we have just created. If you are getting error , you have missed any of the above steps.
 
+You can now set `KUBECONFIG` env variable or keep this file in your `$HOME/.kube` folder to use kubectl without extra argument
 
+```sh
+export KUBECONFIG=$(pwd)/samit-kubeconfig
+#or
+mv samit-kubeconfig $HOME/.kube/config
+
+kubectl get pods
+kubectl getnodes
+```
 ---
 
-More: 
+More Tips: 
 
 You can also use below k8s menifest to create a purify role and bind it for a dedicated user.
 

@@ -23,11 +23,11 @@ provider "aws" {
 }
 
 locals {
-  region        = "eu-north-1"
+  region = "eu-north-1"
 
   ami           = "ami-08eb150f611ca277f"
   instance_type = "t3.medium"
-  workers_count = 2
+  workers_count = 3
   tags = {
     infra = "k8s-ec2"
   }
@@ -111,44 +111,44 @@ resource "aws_security_group" "manager_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress { 
-    from_port = 6443 
-    to_port = 6443 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
-    description = "Kubernetes API server" 
-  } 
-  
-  ingress { 
-    from_port = 2379 
-    to_port = 2380 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
-    description = "etcd server client API" 
-  } 
-  
-  ingress { 
-    from_port = 10250 
-    to_port = 10250 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
-    description = "Kubelet API" 
-  } 
-  
-  ingress { 
-    from_port = 10259 
-    to_port = 10259 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
-    description = "kube-scheduler" 
-  } 
-  
-  ingress { 
-    from_port = 10257 
-    to_port = 10257 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
-    description = "kube-controller-manager" 
+  ingress {
+    from_port   = 6443
+    to_port     = 6443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Kubernetes API server"
+  }
+
+  ingress {
+    from_port   = 2379
+    to_port     = 2380
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "etcd server client API"
+  }
+
+  ingress {
+    from_port   = 10250
+    to_port     = 10250
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Kubelet API"
+  }
+
+  ingress {
+    from_port   = 10259
+    to_port     = 10259
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "kube-scheduler"
+  }
+
+  ingress {
+    from_port   = 10257
+    to_port     = 10257
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "kube-controller-manager"
   }
 
   egress {
@@ -186,26 +186,26 @@ resource "aws_security_group" "worker_sg" {
     cidr_blocks = [data.aws_subnet.public.cidr_block]
   }
 
-  ingress { 
-    from_port = 10250 
-    to_port = 10250 
-    protocol = "tcp" 
+  ingress {
+    from_port   = 10250
+    to_port     = 10250
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Adjust based on your requirements description = "Kubelet API" 
-  } 
-  
-  ingress { 
-    from_port = 10256 
-    to_port = 10256 
-    protocol = "tcp" 
+  }
+
+  ingress {
+    from_port   = 10256
+    to_port     = 10256
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Adjust based on your requirements description = "kube-proxy" 
   }
 
-  ingress { 
-    from_port = 30000 
-    to_port = 32767 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
-    description = "NodePort Services" 
+  ingress {
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "NodePort Services"
   }
 
   egress {
