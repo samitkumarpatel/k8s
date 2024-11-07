@@ -1,6 +1,6 @@
 
-# Kubernetes Installation
-### 3 node Infrastructure with aws ec2.
+# Kubernetes 
+### 3 node Infrastructure with aws ec2
 
 Befor you get started , make sure, you have `terraform`, `ansible` installed.
 
@@ -127,7 +127,7 @@ kubectl --kubeconfig=amit-kubeconfig get nodes # Forbidden
 
 ```
 
-After done the above steps, If you hit the below command , The config file will show something similar describe in `Sample kubeconfig file` section.
+After done the above steps, If you hit the below command , The config file wil show something similar describe in `Sample kubeconfig file` section.
 
 ```sh
 kubectl config --kubeconfig=samit-kubeconfig view

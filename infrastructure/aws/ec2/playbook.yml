@@ -1,25 +1,4 @@
 ---
-- name: Download and prepare Kubernetes signing key locally
-  hosts: localhost
-  tags: local
-  tasks:
-    - name: Ensure local keyring directory exists
-      ansible.builtin.file:
-        path: ./keys
-        state: directory
-        mode: '0755'
-
-    - name: Download Kubernetes signing key
-      ansible.builtin.get_url:
-        url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
-        dest: ./keys/Release.key
-
-    - name: Dearmor the Kubernetes signing key
-      ansible.builtin.shell: |
-        gpg --dearmor -o ./keys/kubernetes-apt-keyring.gpg ./keys/Release.key
-      args:
-        creates: ./keys/kubernetes-apt-keyring.gpg
-
 - name: Setup Kubernetes Cluster
   hosts: all
   become: true
@@ -53,7 +32,7 @@
         - gpg
         - net-tools
 
-    - name: Add user to the docker group
+    - name: Add current user to the docker group
       ansible.builtin.user:
         name: "{{ ansible_user }}"
         groups: docker
@@ -71,11 +50,16 @@
         state: directory
         mode: '0755'
 
-    - name: Copy Kubernetes signing key to remote hosts
-      ansible.builtin.copy:
-        src: ./keys/kubernetes-apt-keyring.gpg
-        dest: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-        mode: '0644'
+    - name: Download Kubernetes signing key
+      ansible.builtin.get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
+        dest: /etc/apt/keyrings
+
+    - name: Dearmor the Kubernetes signing key
+      ansible.builtin.shell: |
+        gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/Release.key
+      args:
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
     - name: Add Kubernetes apt repository
       ansible.builtin.apt_repository:
@@ -145,7 +129,7 @@
       ansible.builtin.shell: kubeadm token create --print-join-command
       register: kube_join_command
 
-    - name: Set join command fact
+    - name: Set join command into fact
       ansible.builtin.set_fact:
         kube_join_token_command: "{{ kube_join_command.stdout }}"
 

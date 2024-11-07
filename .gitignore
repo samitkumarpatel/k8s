@@ -14,3 +14,7 @@ config
 *.key
 *.crt
 *.csr
+plan.out
+**/plan.out
+*-kubeconfig
+**/config
