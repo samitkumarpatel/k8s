@@ -123,7 +123,7 @@ resource "aws_security_group" "manager_sg" {
     from_port   = 2379
     to_port     = 2380
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [data.aws_vpc.default.cidr_block]
     description = "etcd server client API"
   }
 
@@ -131,7 +131,7 @@ resource "aws_security_group" "manager_sg" {
     from_port   = 10250
     to_port     = 10250
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [data.aws_vpc.default.cidr_block]
     description = "Kubelet API"
   }
 
@@ -139,7 +139,7 @@ resource "aws_security_group" "manager_sg" {
     from_port   = 10259
     to_port     = 10259
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [data.aws_vpc.default.cidr_block]
     description = "kube-scheduler"
   }
 
@@ -147,7 +147,7 @@ resource "aws_security_group" "manager_sg" {
     from_port   = 10257
     to_port     = 10257
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [data.aws_vpc.default.cidr_block]
     description = "kube-controller-manager"
   }
 
@@ -190,14 +190,14 @@ resource "aws_security_group" "worker_sg" {
     from_port   = 10250
     to_port     = 10250
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Adjust based on your requirements description = "Kubelet API" 
+    cidr_blocks = [data.aws_vpc.default.cidr_block] # Adjust based on your requirements description = "Kubelet API" 
   }
 
   ingress {
     from_port   = 10256
     to_port     = 10256
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Adjust based on your requirements description = "kube-proxy" 
+    cidr_blocks = [data.aws_vpc.default.cidr_block] # Adjust based on your requirements description = "kube-proxy" 
   }
 
   ingress {
