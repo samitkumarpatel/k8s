@@ -1,6 +1,7 @@
 
 # Kubernetes Installation
-### 3 node Infrastructure with aws ec2.
+
+### 3 or more node Kubernetes cluster Infrastructure with aws ec2.
 
 ### Prerequisites
 
