@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "1"
+            memory: "200Mi"
+          requests:
+            cpu: "0.5"
+            memory: "100Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx-cip
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080      # This should match the port you want to expose.
+    protocol: TCP
+    targetPort: 80  # This should match containerPort.
+  selector:
+    app: nginx
+  
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx-np
+spec:
+  type: NodePort                # Set the service type to NodePort
+  ports:
+  - name: http
+    port: 80                    # Service's port, accessed via NodePort
+    targetPort: 80              # Container's port (same as containerPort in Deployment)
+    protocol: TCP
+    nodePort: 32080             # Optional: specify a custom NodePort (must be between 30000-32767)
+  selector:
+    app: nginx
+
+
+
