@@ -14,36 +14,51 @@
         regexp: '^(.+ swap .+)$'
         replace: '#\1'
 
-    - name: Load necessary kernel modules
-      ansible.builtin.modprobe:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - overlay
-        - br_netfilter
+    # - name: Load necessary kernel modules
+    #   ansible.builtin.modprobe:
+    #     name: "{{ item }}"
+    #     state: present
+    #   loop:
+    #     - overlay
+    #     - br_netfilter
 
-    - name: Configure sysctl for Kubernetes networking
-      ansible.builtin.copy:
-        dest: /etc/sysctl.d/k8s.conf
-        content: |
-          net.bridge.bridge-nf-call-ip6tables = 1
-          net.bridge.bridge-nf-call-iptables = 1
+    # - name: Configure sysctl for Kubernetes networking
+    #   ansible.builtin.copy:
+    #     dest: /etc/sysctl.d/k8s.conf
+    #     content: |
+    #       net.bridge.bridge-nf-call-ip6tables = 1
+    #       net.bridge.bridge-nf-call-iptables = 1
 
-    - name: Apply sysctl settings
-      ansible.builtin.command: sysctl --system
+    # - name: Apply sysctl settings
+    #   ansible.builtin.command: sysctl --system
+    - block:
+      - name: Install containerd and Docker
+        ansible.builtin.yum:
+          name:
+            - docker
+          state: present
 
-    - name: Install containerd and Docker
-      ansible.builtin.yum:
-        name:
-          - containerd
-          - docker
-        state: present
+      - name: Enable and start Docker
+        ansible.builtin.systemd:
+          name: docker
+          enabled: yes
+          state: started
+      
+      - name: Download cri-dockerd .rpm package
+        ansible.builtin.get_url:
+          url: https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.15/cri-dockerd-0.3.15-3.fc35.x86_64.rpm
+          dest: /tmp/cri-dockerd.rpm
 
-    - name: Enable and start Docker
-      ansible.builtin.systemd:
-        name: docker
-        enabled: yes
-        state: started
+      - name: Install cri-dockerd .rpm package
+        ansible.builtin.yum:
+          name: /tmp/cri-dockerd.rpm
+          state: present
+
+      - name: Enable and start cri-dockerd service
+        ansible.builtin.systemd:
+          name: cri-docker
+          state: started
+          enabled: yes
 
     - name: Set SELinux to permissive mode
       ansible.builtin.command: setenforce 0
@@ -54,33 +69,34 @@
         path: /etc/selinux/config
         regexp: '^SELINUX=enforcing'
         replace: 'SELINUX=permissive'
+    
+    - block:
+      - name: Configure Kubernetes repo
+        ansible.builtin.copy:
+          dest: /etc/yum.repos.d/kubernetes.repo
+          content: |
+            [kubernetes]
+            name=Kubernetes
+            baseurl=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
+            enabled=1
+            gpgcheck=1
+            gpgkey=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
+            exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
 
-    - name: Configure Kubernetes repo
-      ansible.builtin.copy:
-        dest: /etc/yum.repos.d/kubernetes.repo
-        content: |
-          [kubernetes]
-          name=Kubernetes
-          baseurl=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
-          enabled=1
-          gpgcheck=1
-          gpgkey=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
-          exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+      - name: Install kubelet, kubeadm, and kubectl
+        ansible.builtin.yum:
+          name:
+            - kubelet
+            - kubeadm
+            - kubectl
+          state: present
+          disable_excludes: kubernetes
 
-    - name: Install kubelet, kubeadm, and kubectl
-      ansible.builtin.yum:
-        name:
-          - kubelet
-          - kubeadm
-          - kubectl
-        state: present
-        disable_excludes: kubernetes
-
-    - name: Enable and start kubelet
-      ansible.builtin.systemd:
-        name: kubelet
-        enabled: yes
-        state: started
+      - name: Enable and start kubelet
+        ansible.builtin.systemd:
+          name: kubelet
+          enabled: yes
+          state: started
 
 - name: Setup Control Plane Node
   hosts: manager

@@ -24,30 +24,86 @@
         update_cache: yes
         state: present
         pkg:
-        - docker.io
         - apt-transport-https
         - ca-certificates
         - curl
         - software-properties-common
         - gpg
         - net-tools
-
-    - name: Add current user to the docker group
-      ansible.builtin.user:
-        name: "{{ ansible_user }}"
-        groups: docker
-        append: yes
-
-    - name: Ensure Docker service is enabled and started
-      ansible.builtin.systemd:
-        name: docker
-        enabled: yes
-        state: started
     
-    - name: Check if gpg is is available
+    - name: Ensure the keyring directory exists on remote hosts
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Check docker gpg key is available
+      ansible.builtin.stat:
+        path: /etc/apt/keyrings/docker.asc
+      register: docker_gpg_key_check
+
+    - block:
+      - name: Download Docker GPG key
+        ansible.builtin.get_url:
+          url: https://download.docker.com/linux/ubuntu/gpg
+          dest: /etc/apt/keyrings/docker.asc
+          mode: '0644'
+
+      - name: Add Docker repository to apt sources
+        ansible.builtin.apt_repository:
+          repo: "deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+          filename: docker
+          state: present
+          update_cache: yes
+      
+      - name: Update apt package index
+        ansible.builtin.apt:
+          update_cache: yes
+      
+      - name: Install docker
+        ansible.builtin.apt:
+          update_cache: yes
+          state: present
+          pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+
+      - name: Add current user to the docker group
+        ansible.builtin.user:
+          name: "{{ ansible_user }}"
+          groups: docker
+          append: yes
+
+      - name: Ensure Docker service is enabled and started
+        ansible.builtin.systemd:
+          name: docker
+          enabled: yes
+          state: started
+      
+      - name: Download cri-dockerd .deb package
+        ansible.builtin.get_url:
+          url: https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.15/cri-dockerd_0.3.15.3-0.debian-bookworm_amd64.deb
+          dest: /tmp/cri-dockerd.deb
+
+      - name: Install cri-dockerd .deb package
+        ansible.builtin.apt:
+          deb: /tmp/cri-dockerd.deb
+          state: present
+
+      - name: Enable and start cri-dockerd service
+        ansible.builtin.systemd:
+          name: cri-docker
+          state: started
+          enabled: yes
+      when: not docker_gpg_key_check.stat.exists
+    
+    - name: Check if kubernetes gpg key is available
       ansible.builtin.stat:
         path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-      register: gpg_key_check
+      register: kubernetes_gpg_key_check
 
     - block:
       - name: Ensure the keyring directory exists on remote hosts
@@ -73,7 +129,7 @@
           state: present
           filename: kubernetes
           update_cache: yes
-      when: not gpg_key_check.stat.exists
+      when: not kubernetes_gpg_key_check.stat.exists
 
     - name: Update apt package index
       ansible.builtin.apt:
@@ -106,11 +162,11 @@
     - block:
       - name: Debug kube_init_token_command
         ansible.builtin.debug:
-          msg: kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans={{ ansible_ssh_host }}
+          msg: kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans={{ ansible_ssh_host }} --cri-socket unix:///run/cri-dockerd.sock
       
       - name: Initialize Kubernetes control plane
         ansible.builtin.shell: |
-          kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans {{ ansible_ssh_host }}
+          kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-cert-extra-sans {{ ansible_ssh_host }} --cri-socket unix:///run/cri-dockerd.sock
         args:
           creates: /etc/kubernetes/admin.conf
 
