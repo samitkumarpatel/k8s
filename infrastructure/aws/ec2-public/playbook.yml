@@ -1,99 +1,87 @@
 ---
-- name: Setup Kubernetes Cluster
+- name: Prepare Amazon Linux for Kubernetes
   hosts: all
-  become: true
-  gather_facts: true
+  become: yes
   tasks:
-    - name: Disable firewall
-      ansible.builtin.systemd:
-        name: ufw
-        state: stopped
-        enabled: false
-
     - name: Disable swap
-      ansible.builtin.shell: swapoff -a
+      ansible.builtin.command: swapoff -a
+      register: swapoff_result
+      changed_when: swapoff_result.rc == 0
 
-    - name: Remove swap entry from fstab
-      ansible.builtin.lineinfile:
+    - name: Ensure swap is disabled in /etc/fstab
+      ansible.builtin.replace:
         path: /etc/fstab
-        regexp: '^(.*swap.*)'
-        state: absent
+        regexp: '^(.+ swap .+)$'
+        replace: '#\1'
 
-    - name: Install necessary dependencies for Kubernetes
-      ansible.builtin.apt:
-        update_cache: yes
+    - name: Load necessary kernel modules
+      ansible.builtin.modprobe:
+        name: "{{ item }}"
         state: present
-        pkg:
-        - docker.io
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - software-properties-common
-        - gpg
-        - net-tools
+      loop:
+        - overlay
+        - br_netfilter
 
-    - name: Add current user to the docker group
-      ansible.builtin.user:
-        name: "{{ ansible_user }}"
-        groups: docker
-        append: yes
+    - name: Configure sysctl for Kubernetes networking
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/k8s.conf
+        content: |
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
 
-    - name: Ensure Docker service is enabled and started
+    - name: Apply sysctl settings
+      ansible.builtin.command: sysctl --system
+
+    - name: Install containerd and Docker
+      ansible.builtin.yum:
+        name:
+          - containerd
+          - docker
+        state: present
+
+    - name: Enable and start Docker
       ansible.builtin.systemd:
         name: docker
         enabled: yes
         state: started
-    
-    - name: Check if gpg is is available
-      ansible.builtin.stat:
-        path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-      register: gpg_key_check
 
-    - block:
-      - name: Ensure the keyring directory exists on remote hosts
-        ansible.builtin.file:
-          path: /etc/apt/keyrings
-          state: directory
-          mode: '0755'
+    - name: Set SELinux to permissive mode
+      ansible.builtin.command: setenforce 0
+      ignore_errors: yes
 
-      - name: Download Kubernetes signing key
-        ansible.builtin.get_url:
-          url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
-          dest: /etc/apt/keyrings
+    - name: Update SELinux config to permissive
+      ansible.builtin.replace:
+        path: /etc/selinux/config
+        regexp: '^SELINUX=enforcing'
+        replace: 'SELINUX=permissive'
 
-      - name: Dearmor the Kubernetes signing key
-        ansible.builtin.shell: |
-          gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/Release.key
-        args:
-          creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - name: Configure Kubernetes repo
+      ansible.builtin.copy:
+        dest: /etc/yum.repos.d/kubernetes.repo
+        content: |
+          [kubernetes]
+          name=Kubernetes
+          baseurl=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
+          enabled=1
+          gpgcheck=1
+          gpgkey=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
+          exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
 
-      - name: Add Kubernetes apt repository
-        ansible.builtin.apt_repository:
-          repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /'
-          state: present
-          filename: kubernetes
-          update_cache: yes
-      when: not gpg_key_check.stat.exists
-
-    - name: Update apt package index
-      ansible.builtin.apt:
-        update_cache: yes
-
-    - name: Install Kubernetes components
-      ansible.builtin.apt:
-        update_cache: yes
+    - name: Install kubelet, kubeadm, and kubectl
+      ansible.builtin.yum:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
         state: present
-        pkg:
-        - kubelet
-        - kubeadm
-        - kubectl
+        disable_excludes: kubernetes
 
-    - name: Enable and start kubelet service
+    - name: Enable and start kubelet
       ansible.builtin.systemd:
         name: kubelet
         enabled: yes
         state: started
-    
+
 - name: Setup Control Plane Node
   hosts: manager
   become: true
