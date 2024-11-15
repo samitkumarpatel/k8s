@@ -1,5 +1,6 @@
 # k8s
 
+**Official Documentation**
 - [Kubernetes Components](https://kubernetes.io/docs/concepts/overview/components/)
 
 **Installation**
@@ -21,8 +22,11 @@
 
 - [ckd](./README-ckd.md)
 
+**Debug**
 
-Kubernetes Components Overview
+- [shopd](https://github.com/jpetazzo/shpod)
+
+**Kubernetes Components Overview**
 
 This Image has been taken from from Kubernetes official documents.
 
