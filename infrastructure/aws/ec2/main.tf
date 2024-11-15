@@ -29,7 +29,8 @@ locals {
   instance_type = "t3.medium"
   workers_count = 3
   tags = {
-    infra = "k8s-ec2"
+    Name  = "k8s-ec2"
+    env   = "dev" 
   }
 }
 
@@ -296,7 +297,7 @@ resource "aws_instance" "worker" {
     cpu_credits = "unlimited"
   }
 
-  tags = merge(local.tags, { Name = "Worker" })
+  tags = merge(local.tags, { Name = "Worker-${count.index + 1}" })
 }
 
 locals {

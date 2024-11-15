@@ -2,6 +2,10 @@
 
 - [Kubernetes Components](https://kubernetes.io/docs/concepts/overview/components/)
 
+**Installation**
+- ubuntu
+    - [command to install both master and worker node](./kubernetes-1-31-installation.md)
+
 **Kubernetes Infrastructure on**
 - aws
     - [3 (or more) node cluster with ec2](./infrastructure/aws/ec2/README.md)
@@ -11,11 +15,11 @@
 
 **cka**
 
-[cka](./README-cka.md)
+- [cka](./README-cka.md)
 
 **ckd**
 
-[ckd](./README-ckd.md)
+- [ckd](./README-ckd.md)
 
 
 Kubernetes Components Overview

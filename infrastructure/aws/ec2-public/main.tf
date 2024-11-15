@@ -21,7 +21,7 @@ terraform {
 locals {
   region = "eu-north-1"
 
-  ami           = "ami-04b54ebf295fe01d7"
+  ami           = "ami-08eb150f611ca277f"
   instance_type = "t3.medium"
   workers_count = 2
 
@@ -84,6 +84,7 @@ resource "aws_security_group" "k8s_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
   ingress {
     from_port   = 6443
     to_port     = 6443
@@ -182,7 +183,7 @@ resource "ansible_host" "manager" {
   name   = aws_instance.k8s_control_plane.public_ip
   groups = ["manager"]
   variables = {
-    ansible_user                 = "ec2-user"
+    ansible_user                 = "ubuntu"
     ansible_ssh_private_key_file = "id_rsa.pem"
     ansible_connection           = "ssh"
     ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
@@ -195,46 +196,10 @@ resource "ansible_host" "worker" {
   name   = aws_instance.k8s_worker[count.index].public_ip
   groups = ["worker"]
   variables = {
-    ansible_user                 = "ec2-user"
+    ansible_user                 = "ubuntu"
     ansible_ssh_private_key_file = "id_rsa.pem"
     ansible_connection           = "ssh"
     ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
     ansible_python_interpreter   = "/usr/bin/python3"
   }
 }
-
-
-# sudo swapoff -a
-# sudo modprobe overlay
-# sudo modprobe br_netfilter
-
-# sudo tee /etc/sysctl.d/k8s.conf <<EOF
-# net.bridge.bridge-nf-call-ip6tables = 1
-# net.bridge.bridge-nf-call-iptables = 1
-# EOF
-
-# sudo amazon-linux-extras enable docker
-# sudo yum install -y containerd docker
-
-# sudo systemctl enable --now docker
-
-# # Set SELinux in permissive mode (effectively disabling it)
-# sudo setenforce 0
-# sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
-
-# # This overwrites any existing configuration in /etc/yum.repos.d/kubernetes.repo
-# cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
-# [kubernetes]
-# name=Kubernetes
-# baseurl=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/
-# enabled=1
-# gpgcheck=1
-# gpgkey=https://pkgs.k8s.io/core:/stable:/v1.31/rpm/repodata/repomd.xml.key
-# exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
-# EOF
-
-# sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-
-# sudo systemctl enable --now kubelet
-
-# sudo kubeadm init --pod-network-cidr=10.244.0.0/16
