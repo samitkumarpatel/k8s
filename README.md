@@ -22,7 +22,7 @@
 
 - [ckd](./README-ckd.md)
 
-**Debug**
+**Debug Tools**
 
 - [shopd](https://github.com/jpetazzo/shpod)
 
