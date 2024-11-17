@@ -22,12 +22,32 @@
 
 - [ckd](./README-ckd.md)
 
-**Debug Tools**
+**Debugging Tools**
 
 - [shopd](https://github.com/jpetazzo/shpod)
 
+**Ingress Controller**
+- [Supported Ingress Class](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
+- nginx
+    - [nginx ingress controller](https://github.com/nginxinc/kubernetes-ingress/tree/main).
+    - [nginx Installtion Steps](https://docs.nginx.com/nginx-ingress-controller/installation/installing-nic/installation-with-manifests/)
+
+
 **Kubernetes Components Overview**
 
-This Image has been taken from from Kubernetes official documents.
+![cluster official](./.docs/cluster-components.svg)
 
-![Screenshot of a comment on a GitHub issue showing an image, added in the Markdown, of an Octocat smiling and raising a tentacle.](./components-of-kubernetes.svg)
+> This Image has been taken from from Kubernetes official documents.
+---
+
+Cluster Component
+
+![cluster](./.docs/cluster.png)
+
+---
+
+Ingress Controller
+
+![nginx.](./.docs/nginx-ingress.png)
+
+
