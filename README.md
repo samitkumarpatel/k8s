@@ -1,7 +1,7 @@
 # k8s
 
 **Official Documentation**
-- [Kubernetes Components](https://kubernetes.io/docs/concepts/overview/components/)
+- [https://kubernetes.io](https://kubernetes.io/docs/concepts/overview/components/)
 
 **Installation**
 - ubuntu
