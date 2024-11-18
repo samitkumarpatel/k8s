@@ -121,30 +121,6 @@ resource "aws_security_group" "manager_sg" {
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "http port"
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "https port"
-  }
-
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "8080 port"
-  }
-
-  ingress {
     from_port   = 2379
     to_port     = 2380
     protocol    = "tcp"
@@ -198,27 +174,6 @@ resource "aws_security_group" "worker_sg" {
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.public.cidr_block]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.public.cidr_block]
-  }
-
-  ingress {
-    from_port   = 10250
-    to_port     = 10250
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.default.cidr_block] # Adjust based on your requirements description = "Kubelet API" 
-  }
-
-  ingress {
     from_port   = 10256
     to_port     = 10256
     protocol    = "tcp"
@@ -231,6 +186,13 @@ resource "aws_security_group" "worker_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "NodePort Services"
+  }
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [data.aws_vpc.default.cidr_block, "10.244.0.0/16"] # Adjust based on your requirements description = "Kubelet API" 
   }
 
   egress {

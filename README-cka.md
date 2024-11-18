@@ -1,5 +1,0 @@
-# cka
-
-
-
-[back](./README.md)

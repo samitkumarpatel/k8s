@@ -1,46 +1,55 @@
 # k8s
 
-**Official Documentation**
+**kubernetes.io**
 - [https://kubernetes.io](https://kubernetes.io/docs/concepts/overview/components/)
 
-**Installation**
-- ubuntu
-    - [command to install both master and worker node](./kubernetes-1-31-installation.md)
 
-**Kubernetes Infrastructure on**
+**Kubernetes Infrastructure**
 - aws
-    - [3 (or more) node cluster with ec2](./infrastructure/aws/ec2/README.md)
+    - [1 (or more) node cluster with ec2 vm](./infrastructure/aws/ec2-vm/README.md)
+    - [1 (or more) node cluster with ec2 public vm](./infrastructure/aws/ec2-public-vm/README.md)
+    - [eks]()
 - azure
-
+    - [azure vm]()
+    - [aks]()
 - gcp
+    - [gcp vm]()
+    - [gke]()
+
+**Kubernetes Installation**
+- 1.31
+    - [ubuntu](./.docs/kubernetes-1-31-installation.md)
 
 **cka**
 
-- [cka](./README-cka.md)
+- [cka](./.docs/README-cka.md)
 
 **ckd**
 
-- [ckd](./README-ckd.md)
+- [ckd](./.docs/README-ckd.md)
 
-**Debugging Tools**
+**Kubernetes Administration**
 
-- [shopd](https://github.com/jpetazzo/shpod)
-- alpine
-```sh
-kubectl run alpine --image=alpine -it
-# apk update
-# apk add bind-tools curl wget
-# host service-name # to see the attached dns record
-```
+- [User & RBAC](./.docs/README-user-rbac.md)
+
+- Debugging Inside cluster
+    - [shopd](https://github.com/jpetazzo/shpod)
+    
+    - alpine
+    ```sh
+        kubectl run alpine --image=alpine -it
+        # apk update
+        # apk add bind-tools curl wget
+        # host service-name # to see the attached dns record
+    ```
 
 **Ingress Controller**
-- [Supported Ingress Class](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
-- nginx
-    - [nginx ingress controller](https://github.com/nginxinc/kubernetes-ingress/tree/main).
-    - [nginx Installtion Steps](https://docs.nginx.com/nginx-ingress-controller/installation/installing-nic/installation-with-manifests/)
-- Installation
-    - [kubernetes](https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/ingress-nginx-3.7.1/deploy/static/provider/baremetal/deploy.yaml)
-    - [nginx.org](./nginx-org.md)
+
+- [Supported Kubernetes Ingress Class](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
+    - nginx
+        - [nginx.org](./.docs/README-nginx-ingress.md)
+        - [Kubernetes nginx](./.docs/README-nginx-ingress.md)
+
 
 **Kubernetes Components Overview**
 

@@ -1,3 +1,0 @@
-# ckd
-
-[back](./README.md)
