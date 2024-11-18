@@ -38,7 +38,9 @@ kubectl run alpine --image=alpine -it
 - nginx
     - [nginx ingress controller](https://github.com/nginxinc/kubernetes-ingress/tree/main).
     - [nginx Installtion Steps](https://docs.nginx.com/nginx-ingress-controller/installation/installing-nic/installation-with-manifests/)
-
+- Installation
+    - [kubernetes](https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/ingress-nginx-3.7.1/deploy/static/provider/baremetal/deploy.yaml)
+    - [nginx.org](./nginx-org.md)
 
 **Kubernetes Components Overview**
 
