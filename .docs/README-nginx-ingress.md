@@ -1,4 +1,4 @@
-**nginx by nginxinc**
+**nginx ingress controller by nginxinc**
     
 - [Github](https://github.com/nginxinc/kubernetes-ingress/tree/main).
     
@@ -30,11 +30,32 @@
 ```        
 
 
-**nginx by kubernetes**
+**nginx ingress controller by kubernetes**
     
 - [Github](https://github.com/kubernetes/ingress-nginx/tree/main).
-    
-- [Installation](https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/ingress-nginx-3.7.1/deploy/static/provider/baremetal/deploy.yaml)
+
+- [Getting Started Guide](https://kubernetes.github.io/ingress-nginx/deploy/).
+
+- Installation.
+    - [Baremetal](https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/ingress-nginx-3.7.1/deploy/static/provider/baremetal/deploy.yaml).
+
+
+**summary**
+
+
+Summary Table:
+
+| **Aspect**             | **NGINX Inc. Ingress Controller**               | **Kubernetes NGINX Ingress Controller**   |
+|-------------------------|------------------------------------------------|-------------------------------------------|
+| **Maintainer**          | F5 NGINX                                       | Kubernetes Community                      |
+| **Licensing**           | Free (OSS) or Paid (NGINX Plus)                | Free (Apache 2.0)                         |
+| **Advanced Features**   | Yes (e.g., NGINX Plus, WAF, mTLS, JWT)         | Limited                                   |
+| **Performance**         | Optimized for enterprises                      | Standard performance                      |
+| **Support**             | Paid enterprise support                        | Community-driven                          |
+| **Configuration**       | Highly customizable (ConfigMaps, Annotations) | Basic customization with annotations      |
+| **Use Case**            | Enterprise-grade workloads, advanced security  | General-purpose Kubernetes ingress        |
+
+
 
 
 [back](../README.md)

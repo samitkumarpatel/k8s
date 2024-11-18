@@ -30,9 +30,9 @@
 
 **Kubernetes Administration**
 
-- [User & RBAC](./.docs/README-user-rbac.md)
-
-- Debugging Inside cluster
+- [User & RBAC](./.docs/README-user-rbac.md).
+- [kubeconfig](./.docs/README-kube-config.md).
+- Debugging Inside cluster.
     - [shopd](https://github.com/jpetazzo/shpod)
     
     - alpine
@@ -42,6 +42,7 @@
         # apk add bind-tools curl wget
         # host service-name # to see the attached dns record
     ```
+
 
 **Ingress Controller**
 
