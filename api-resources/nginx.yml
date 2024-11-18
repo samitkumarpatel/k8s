@@ -42,6 +42,7 @@ spec:
     targetPort: 80  # This should match containerPort.
   selector:
     app: nginx
+  #clusterIP: None   # This will create a headless service.
   
 
 ---
@@ -75,6 +76,13 @@ spec:
   - http:
       paths:
       - path: /nginx
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-cip
+            port:
+              number: 8080
+      - path: /
         pathType: Prefix
         backend:
           service:

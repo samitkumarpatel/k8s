@@ -25,6 +25,13 @@
 **Debugging Tools**
 
 - [shopd](https://github.com/jpetazzo/shpod)
+- alpine
+```sh
+kubectl run alpine --image=alpine -it
+# apk update
+# apk add bind-tools curl wget
+# host service-name # to see the attached dns record
+```
 
 **Ingress Controller**
 - [Supported Ingress Class](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
