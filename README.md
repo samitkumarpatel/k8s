@@ -1,6 +1,7 @@
 # k8s
 
-**kubernetes.io**
+**Kubernetes documentation**
+
 - [https://kubernetes.io](https://kubernetes.io/docs/concepts/overview/components/)
 
 

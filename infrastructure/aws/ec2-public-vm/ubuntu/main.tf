@@ -13,7 +13,7 @@ terraform {
 
   backend "s3" {
     bucket = "tfpocbucket001"
-    key    = "k8s/ec2-public/terraform.tfstate"
+    key    = "k8s/ec2-public/ubuntu/terraform.tfstate"
     region = "eu-north-1"
   }
 }
