@@ -70,7 +70,8 @@ kind: Ingress
 metadata:
   name: nginx-ingress-path
   annotations:
-    nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
+    #nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
@@ -97,7 +98,8 @@ kind: Ingress
 metadata:
   name: nginx-ingress-domain
   annotations:
-    nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
+    #nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
