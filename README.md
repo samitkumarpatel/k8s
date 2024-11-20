@@ -37,6 +37,7 @@ prerequisites
 - [ckd](./.docs/README-ckd.md)
 
 **Kubernetes Administration**
+- [cri & kubernetes tools insllation tips](./.docs/kubernetes-1-31-installation.v2.md).
 - [cri](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
     - [containerd](https://github.com/containerd/containerd/blob/main/docs/getting-started.md)
     - [CRI-O](https://cri-o.io/)

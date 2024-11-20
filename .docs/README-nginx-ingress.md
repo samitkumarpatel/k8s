@@ -39,7 +39,7 @@
 - [Deploy](https://kubernetes.github.io/ingress-nginx/deploy/).
 
 - Installation.
-    - [Baremetal](https://raw.githubusercontent.com/kubernetes/ingress-nginx/refs/tags/ingress-nginx-3.7.1/deploy/static/provider/baremetal/deploy.yaml).
+    - [Baremetal](kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.0/deploy/static/provider/baremetal/deploy.yaml).
 
 
 **summary**
