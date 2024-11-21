@@ -27,6 +27,7 @@ systemctl start crio.service
 swapoff -a
 modprobe br_netfilter
 sysctl -w net.ipv4.ip_forward=1
+sysctl --system
 ```
 
 
@@ -78,23 +79,9 @@ apt-get install -y kubelet kubeadm kubectl
 swapoff -a
 ufw disable
 
-#Extra command - not needed
-cat >>/etc/modules-load.d/containerd.conf<<EOF
-overlay
-br_netfilter
-EOF
-
-modprobe overlay
-modprobe br_netfilter
-
-cat >>/etc/sysctl.d/kubernetes.conf<<EOF
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables  = 1
-net.ipv4.ip_forward                 = 1
-EOF
-
-sysctl --system
 sysctl -w net.ipv4.ip_forward=1
+modprobe br_netfilter
+sysctl --system
 
 
 #For master node only
