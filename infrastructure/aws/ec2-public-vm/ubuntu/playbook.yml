@@ -1,173 +1,134 @@
 ---
-- name: Prepare Amazon Linux for Kubernetes
+- name: Install Containerd, runc, CNI, and Kubernetes
   hosts: all
-  become: yes
+  become: true
+  vars:
+    KUBERNETES_VERSION: "v1.31"
+    CONTAINERD_VERSION: "2.0.0"
+    RUNC_VERSION: "v1.2.2"
+    CNI_VERSION: "v1.6.0"
+    POD_NETWORK_CIDR: "10.244.0.0/16"
   tasks:
-    - name: Disable swap
-      ansible.builtin.command: swapoff -a
-      register: swapoff_result
-      changed_when: swapoff_result.rc == 0
-
-    - name: Ensure swap is disabled in /etc/fstab
-      ansible.builtin.lineinfile:
-        path: /etc/fstab
-        regexp: '^.*swap.*$'
-        state: absent
-    
-    - name: Load kernel modules for containerd
-      ansible.builtin.copy:
-        content: |
-          overlay
-          br_netfilter
-        dest: /etc/modules-load.d/containerd.conf
-    
-    - name: Load necessary kernel modules
-      ansible.builtin.modprobe:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - overlay
-        - br_netfilter
-
-    - name: Configure sysctl for Kubernetes
-      ansible.builtin.copy:
-        content: |
-          net.bridge.bridge-nf-call-ip6tables = 1
-          net.bridge.bridge-nf-call-iptables = 1
-          net.ipv4.ip_forward = 1
-        dest: /etc/sysctl.d/kubernetes.conf
-
-    - name: Apply sysctl settings
-      ansible.builtin.command: sysctl --system
-
-    - name: Disable UFW
-      ansible.builtin.command: ufw disable
-      ignore_errors: yes
-
-    - name: Remove conflicting packages
+    - name: Install required packages
       ansible.builtin.apt:
         name:
-          - containernetworking-plugins
-          - conmon
-        state: absent
-    
-    - name: Ensure the directory for keyrings exists
+          - software-properties-common
+          - curl
+        state: present
+        update_cache: yes
+
+    # Containerd installation
+    - name: Download Containerd binary
+      ansible.builtin.get_url:
+        url: "https://github.com/containerd/containerd/releases/download/v{{ CONTAINERD_VERSION }}/containerd-{{ CONTAINERD_VERSION }}-linux-amd64.tar.gz"
+        dest: "/tmp/containerd-{{ CONTAINERD_VERSION }}.tar.gz"
+
+    - name: Extract Containerd binary
+      ansible.builtin.unarchive:
+        src: "/tmp/containerd-{{ CONTAINERD_VERSION }}.tar.gz"
+        dest: /usr/local
+        remote_src: yes
+
+    - name: Create systemd directory for Containerd
       ansible.builtin.file:
-        path: /etc/apt/keyrings/
+        path: /usr/local/lib/systemd/system
         state: directory
+
+    - name: Download Containerd service file
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/containerd/containerd/main/containerd.service"
+        dest: /usr/local/lib/systemd/system/containerd.service
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: Enable and start Containerd service
+      ansible.builtin.systemd:
+        name: containerd
+        enabled: yes
+        state: started
+
+    # runc installation
+    - name: Download runc binary
+      ansible.builtin.get_url:
+        url: "https://github.com/opencontainers/runc/releases/download/{{ RUNC_VERSION }}/runc.amd64"
+        dest: /tmp/runc.amd64
         mode: '0755'
 
-    - name: Check if containerd is available
-      ansible.builtin.stat:
-        path: /usr/local/lib/systemd/system/containerd.service
-      register: containerd_installation_status
-    
-    - block:
-      - name: Download containerd archive
-        ansible.builtin.get_url:
-          url: https://github.com/containerd/containerd/releases/download/v2.0.0/containerd-2.0.0-linux-amd64.tar.gz
-          dest: /tmp/containerd-2.0.0-linux-amd64.tar.gz
-          mode: '0644'
+    - name: Install runc binary
+      ansible.builtin.command:
+        cmd: "install -m 755 /tmp/runc.amd64 /usr/local/sbin/runc"
+        creates: /usr/local/sbin/runc
 
-      - name: Extract containerd to /usr/local
-        ansible.builtin.unarchive:
-          src: /tmp/containerd-2.0.0-linux-amd64.tar.gz
-          dest: /usr/local
-          remote_src: yes
-      
-      - name: Ensure the containerd.service base directory exists
-        ansible.builtin.file:
-          path: /usr/local/lib/systemd/system
-          state: directory
-          mode: '0755'
+    # CNI installation
+    - name: Download CNI plugins
+      ansible.builtin.get_url:
+        url: "https://github.com/containernetworking/plugins/releases/download/{{ CNI_VERSION }}/cni-plugins-linux-amd64-{{ CNI_VERSION }}.tgz"
+        dest: "/tmp/cni-plugins-linux-amd64-{{ CNI_VERSION }}.tgz"
 
-      - name: Configure containerd as a systemd service
-        ansible.builtin.copy:
-          dest: /usr/local/lib/systemd/system/containerd.service
-          content: |
-            [Unit]
-            Description=containerd container runtime
-            Documentation=https://containerd.io
-            After=network.target local-fs.target dbus.service
+    - name: Create CNI directory
+      ansible.builtin.file:
+        path: /opt/cni/bin
+        state: directory
 
-            [Service]
-            ExecStartPre=-/sbin/modprobe overlay
-            ExecStart=/usr/local/bin/containerd
-            Type=notify
-            Delegate=yes
-            KillMode=process
-            Restart=always
-            RestartSec=5
+    - name: Extract CNI plugins
+      ansible.builtin.unarchive:
+        src: "/tmp/cni-plugins-linux-amd64-{{ CNI_VERSION }}.tgz"
+        dest: /opt/cni/bin
+        remote_src: yes
 
-            LimitNPROC=infinity
-            LimitCORE=infinity
-            TasksMax=infinity
-            OOMScoreAdjust=-999
+    # Kubernetes installation
+    - name: Add Kubernetes GPG key
+      ansible.builtin.command:
+        cmd: >
+          curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ KUBERNETES_VERSION }}/deb/Release.key |
+          gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-            [Install]
-            WantedBy=multi-user.target
-          mode: '0644'
+    - name: Add Kubernetes repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ KUBERNETES_VERSION }}/deb/ /"
+        filename: kubernetes
+        state: present
 
-      - name: Reload systemd and enable containerd
-        ansible.builtin.systemd:
-          name: containerd
-          enabled: yes
-          state: started
+    - name: Update Apt cache after adding repository
+      ansible.builtin.apt:
+        update_cache: yes
 
-      - name: Install runc
-        ansible.builtin.shell: |
-          wget https://github.com/opencontainers/runc/releases/download/v1.2.1/runc.amd64
-          install -m 755 runc.amd64 /usr/local/sbin/runc
+    - name: Install Kubernetes components
+      ansible.builtin.apt:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
 
-      - name: Install CNI plugins
-        ansible.builtin.shell: |
-          wget https://github.com/containernetworking/plugins/releases/download/v1.6.0/cni-plugins-linux-amd64-v1.6.0.tgz
-          mkdir -p /opt/cni/bin
-          tar -C /opt/cni/bin -xzvf cni-plugins-linux-amd64-v1.6.0.tgz
+    # Kernel and networking configuration
+    - name: Disable swap
+      ansible.builtin.command:
+        cmd: swapoff -a
+      when: ansible_swaptotal_mb > 0
 
-      - name: Restart containerd
-        ansible.builtin.systemd:
-          name: containerd
-          state: restarted
-      when: not containerd_installation_status.stat.exists
-    
-    - name: Check If kubernetes is already installed
-      ansible.builtin.stat:
-        path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-      register: kkk_installation_status
-    
-    - block:
-      - name: Download Kubernetes signing key
-        ansible.builtin.get_url:
-          url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
-          dest: /etc/apt/keyrings
+    - name: Disable UFW firewall
+      ansible.builtin.ufw:
+        state: disabled
 
-      - name: Dearmor the Kubernetes signing key
-        ansible.builtin.shell: |
-          gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /etc/apt/keyrings/Release.key
-        args:
-          creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - name: Enable IP forwarding
+      ansible.builtin.sysctl:
+        name: net.ipv4.ip_forward
+        value: "1"
+        state: present
 
-      - name: Add Kubernetes apt repository
-        ansible.builtin.apt_repository:
-          repo: 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /'
-          state: present
-          filename: kubernetes
-          update_cache: yes
+    - name: Load br_netfilter kernel module
+      ansible.builtin.shell:
+        cmd: modprobe br_netfilter
+      args:
+        creates: /sys/module/br_netfilter
 
-      - name: Install kubelet, kubeadm, and kubectl
-        ansible.builtin.apt:
-          name:
-            - kubelet
-            - kubeadm
-            - kubectl
-          state: present
-          update_cache: yes
-
-      - name: Hold kubelet, kubeadm, and kubectl packages
-        ansible.builtin.command:
-          cmd: sudo apt-mark hold kubelet kubeadm kubectl
-      when: not kkk_installation_status.stat.exists
+    - name: Apply sysctl changes
+      ansible.builtin.command:
+        cmd: sysctl --system
 
 - name: Setup Control Plane Node
   hosts: manager
@@ -179,26 +140,12 @@
       register: kubeadm_init_check
     
     - block:
-      - name: Enable and start kubelet service
-        ansible.builtin.systemd:
-          name: kubelet
-          enabled: true
-          state: started
-      
-      - name: Debug kube_init_token_command
-        ansible.builtin.debug:
-          msg: |
-            kubeadm init --pod-network-cidr=10.244.0.0/16 \
-              --cri-socket unix:///run/containerd/containerd.sock \
-              --ignore-preflight-errors=NumCPU \
-              --apiserver-cert-extra-sans={{ ansible_ssh_host }}
+      - name: Kubeadm pull image
+        ansible.builtin.command: kubeadm config images pull
       
       - name: Initialize Kubernetes control plane
         ansible.builtin.shell: |
-          kubeadm init --pod-network-cidr=10.244.0.0/16 \
-              --cri-socket unix:///run/containerd/containerd.sock \
-              --ignore-preflight-errors=NumCPU \
-              --apiserver-cert-extra-sans={{ ansible_ssh_host }}
+          kubeadm init --pod-network-cidr={{ POD_NETWORK_CIDR }} --apiserver-cert-extra-sans={{ ansible_ssh_host }}
         args:
           creates: /etc/kubernetes/admin.conf
       
