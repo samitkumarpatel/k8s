@@ -9,7 +9,7 @@
 - aws
     - [1 (or more) node cluster with ec2 vm](./infrastructure/aws/ec2-vm/README.md)
     - [1 (or more) node cluster with ec2 public vm](./infrastructure/aws/ec2-public-vm/README.md)
-    - [eks]()
+    - [eks](./.docs/eks.md)
 - azure
     - [azure vm]()
     - [aks]()
