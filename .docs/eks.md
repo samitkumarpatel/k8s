@@ -1,6 +1,6 @@
 # eks
 
-##Infrastructure Plan
+## Infrastructure Plan
 
 The typical resources required are:
 
@@ -9,7 +9,7 @@ The typical resources required are:
 **EKS cluster**: The managed Kubernetes control plane.
 **Node groups**: Managed or self-managed EC2 instances
 
-##Documentation:
+## Documentation:
 
 - [eks with developer.hashicorp.com](https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks).
 
