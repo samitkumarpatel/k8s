@@ -261,6 +261,22 @@ resource "aws_eks_cluster" "eks_cluster" {
   }
 }
 
+# RSA KEY PAIR
+resource "tls_private_key" "foo" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+resource "aws_key_pair" "foo" {
+  key_name   = "id_rsa"
+  public_key = tls_private_key.foo.public_key_openssh
+}
+
+output "ssh_key" {
+  value     = tls_private_key.foo.private_key_pem
+  sensitive = true
+}
+
 resource "aws_eks_node_group" "eks_nodes" {
   cluster_name    = aws_eks_cluster.eks_cluster.name
   node_role_arn   = aws_iam_role.eks_node_role.arn
@@ -274,7 +290,7 @@ resource "aws_eks_node_group" "eks_nodes" {
   instance_types = ["t3.medium"]
 
   remote_access {
-    #ec2_ssh_key             = "my-key-pair"
+    ec2_ssh_key               = aws_key_pair.foo.key_name
     source_security_group_ids = [aws_security_group.eks_node_sg.id]
   }
 
