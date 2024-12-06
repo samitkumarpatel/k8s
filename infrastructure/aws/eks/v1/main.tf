@@ -4,11 +4,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.80.0"
     }
-
-    ansible = {
-      version = "~> 1.3.0"
-      source  = "ansible/ansible"
-    }
   }
 
   backend "s3" {
@@ -18,56 +13,62 @@ terraform {
   }
 }
 
-locals {
-
+provider "aws" {
+  region = "eu-north-1"
 }
 
+# VPC
 resource "aws_vpc" "eks_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
-  
+
   tags = {
     Name = "eks-vpc"
   }
 }
 
+# Availability Zones
 data "aws_availability_zones" "available" {
   state = "available"
 }
 
+# Private Subnets
 resource "aws_subnet" "eks_private" {
   count                   = 3
   vpc_id                  = aws_vpc.eks_vpc.id
   cidr_block              = cidrsubnet(aws_vpc.eks_vpc.cidr_block, 3, count.index)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = false
-  
+
   tags = {
     Name = "eks-private-${count.index + 1}"
   }
 }
 
+# Public Subnets
 resource "aws_subnet" "eks_public" {
   count                   = 3
   vpc_id                  = aws_vpc.eks_vpc.id
   cidr_block              = cidrsubnet(aws_vpc.eks_vpc.cidr_block, 3, count.index + 3)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
-  
+
   tags = {
     Name = "eks-public-${count.index + 1}"
   }
 }
 
+# Internet Gateway
 resource "aws_internet_gateway" "eks_igw" {
   vpc_id = aws_vpc.eks_vpc.id
-  
+
   tags = {
     Name = "eks-igw"
   }
 }
 
+# Route Table for Public Subnets
 resource "aws_route_table" "eks_public_rt" {
   vpc_id = aws_vpc.eks_vpc.id
 
@@ -81,10 +82,60 @@ resource "aws_route_table" "eks_public_rt" {
   }
 }
 
+# Associate Public Subnets with Public Route Table
 resource "aws_route_table_association" "eks_public_rt_assoc" {
   count          = 3
   subnet_id      = aws_subnet.eks_public[count.index].id
   route_table_id = aws_route_table.eks_public_rt.id
+}
+
+# Allocate EIPs for NAT Gateways
+resource "aws_eip" "eks_eip" {
+  count  = 3
+  domain = "vpc"
+
+  tags = {
+    Name = "eks-eip-${count.index + 1}"
+  }
+}
+
+# NAT Gateways
+resource "aws_nat_gateway" "private" {
+  count         = 3
+  allocation_id = aws_eip.eks_eip[count.index].id
+  subnet_id     = aws_subnet.eks_public[count.index].id
+
+  tags = {
+    Name = "eks-nat-gateway-${count.index + 1}"
+  }
+}
+
+# Route Table for Private Subnets
+resource "aws_route_table" "eks_private_rt" {
+  vpc_id = aws_vpc.eks_vpc.id
+
+  dynamic "route" {
+    for_each = aws_nat_gateway.private
+    content {
+      cidr_block        = "0.0.0.0/0"
+      nat_gateway_id    = route.value.id
+    }
+  }
+  # route {
+  #   cidr_block = "0.0.0.0/0"
+  #   nat_gateway_id = aws_nat_gateway.private[0].id
+  # }
+
+  tags = {
+    Name = "eks-private-rt"
+  }
+}
+
+# Associate Private Subnets with Private Route Table
+resource "aws_route_table_association" "eks_private_rt_assoc" {
+  count          = 3
+  subnet_id      = aws_subnet.eks_private[count.index].id
+  route_table_id = aws_route_table.eks_private_rt.id
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
@@ -114,6 +165,11 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 resource "aws_iam_role_policy_attachment" "eks_service_policy" {
   role       = aws_iam_role.eks_cluster_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "eks_vpc_resource_policy" {
+  role       = aws_iam_role.eks_cluster_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
 }
 
 
@@ -157,11 +213,11 @@ resource "aws_security_group" "eks_cluster_sg" {
   vpc_id      = aws_vpc.eks_vpc.id
 
   ingress {
-    description      = "Allow all traffic from nodes"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    security_groups  = [aws_security_group.eks_node_sg.id]
+    description     = "Allow all traffic from nodes"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.eks_node_sg.id]
   }
 
   egress {
@@ -278,9 +334,9 @@ output "ssh_key" {
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
-  cluster_name    = aws_eks_cluster.eks_cluster.name
-  node_role_arn   = aws_iam_role.eks_node_role.arn
-  subnet_ids      = aws_subnet.eks_private[*].id
+  cluster_name  = aws_eks_cluster.eks_cluster.name
+  node_role_arn = aws_iam_role.eks_node_role.arn
+  subnet_ids    = aws_subnet.eks_private[*].id
   scaling_config {
     desired_size = 2
     max_size     = 3
