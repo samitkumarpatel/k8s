@@ -18,3 +18,5 @@ plan.out
 **/plan.out
 *-kubeconfig
 **/config
+
+**/kubeconfig

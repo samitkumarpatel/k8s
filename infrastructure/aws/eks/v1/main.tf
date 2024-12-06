@@ -92,6 +92,7 @@ resource "aws_route_table_association" "eks_public_rt_assoc" {
 # Allocate EIPs for NAT Gateways
 resource "aws_eip" "eks_eip" {
   count  = 3
+  
   domain = "vpc"
 
   tags = {
@@ -100,8 +101,9 @@ resource "aws_eip" "eks_eip" {
 }
 
 # NAT Gateways
-resource "aws_nat_gateway" "private" {
+resource "aws_nat_gateway" "eks_nat_gateway" {
   count         = 3
+  
   allocation_id = aws_eip.eks_eip[count.index].id
   subnet_id     = aws_subnet.eks_public[count.index].id
 
@@ -114,21 +116,15 @@ resource "aws_nat_gateway" "private" {
 resource "aws_route_table" "eks_private_rt" {
   vpc_id = aws_vpc.eks_vpc.id
 
-  dynamic "route" {
-    for_each = aws_nat_gateway.private
-    content {
-      cidr_block        = "0.0.0.0/0"
-      nat_gateway_id    = route.value.id
-    }
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.eks_nat_gateway[0].id
   }
-  # route {
-  #   cidr_block = "0.0.0.0/0"
-  #   nat_gateway_id = aws_nat_gateway.private[0].id
-  # }
 
   tags = {
     Name = "eks-private-rt"
   }
+
 }
 
 # Associate Private Subnets with Private Route Table
@@ -334,12 +330,21 @@ output "ssh_key" {
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
+  depends_on = [ 
+      aws_subnet.eks_private, 
+      aws_route_table.eks_private_rt,
+      aws_route_table_association.eks_private_rt_assoc
+  ]
+
   cluster_name  = aws_eks_cluster.eks_cluster.name
+  
   node_role_arn = aws_iam_role.eks_node_role.arn
+  
   subnet_ids    = aws_subnet.eks_private[*].id
+  
   scaling_config {
-    desired_size = 2
-    max_size     = 3
+    desired_size = 1
+    max_size     = 2
     min_size     = 1
   }
 
@@ -395,5 +400,6 @@ output "kubeconfig" {
           - "eu-north-1"
           - "--cluster-name"
           - "${aws_eks_cluster.eks_cluster.name}"
+          interactiveMode: false
   EOT
 }
