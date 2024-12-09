@@ -400,6 +400,6 @@ output "kubeconfig" {
           - "eu-north-1"
           - "--cluster-name"
           - "${aws_eks_cluster.eks_cluster.name}"
-          interactiveMode: false
+          interactiveMode: "Never"
   EOT
 }

@@ -20,3 +20,4 @@ plan.out
 **/config
 
 **/kubeconfig
+*.core
