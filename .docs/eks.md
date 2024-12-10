@@ -12,26 +12,26 @@ The typical resources required are:
 ## Documentation:
 
 
-- [eks with developer.hashicorp.com](https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks).
+### [eks with developer.hashicorp.com](https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks).
 
 
-- Other way to install
+### Other way to install
 
 ```sh
 git clone https://github.com/hashicorp-education/learn-terraform-provision-eks-cluster
 cd learn-terraform-provision-eks-cluster
 # Follow the steps along
 ```
-- eksctl
+### eksctl
 
-- Install via Terraform by using aws provider.
+### Install via Terraform by using aws provider.
 
-    - Infra from scratch with aws eks paas.
-    - Navigate to `aws`/`eks`/`v1` folder.
-    - Make sure you have terraform and aws cli Installed.
-    - Command to be execute for cluster Installation and `kubectl` aceess:
+- Infra from scratch with aws eks paas.
+- Navigate to `aws`/`eks`/`v1` folder.
+- Make sure you have terraform and aws cli Installed.
+- Command to be execute for cluster Installation and `kubectl` aceess:
     
-    ```sh
+```sh
     terraform init
 
     terraform validate
@@ -46,26 +46,26 @@ cd learn-terraform-provision-eks-cluster
 
     kubectl get nodes -o wide
 
-    ```
-    - To test your cluster with an deployment, follow below:
+```
+- To test your cluster with an deployment, follow below:
 
-    ```sh
+```sh
     kubectl -f apply https://raw.githubusercontent.com/samitkumarpatel/k8s/refs/heads/main/api-resources/nginx.yml
-    
+
     # Wait for some time
     kubectl get svc -o wide
-    ``` 
-    - After the above command, You can see an similar line like below (along with other details):
+``` 
+- After the above command, You can see an similar line like below (along with other details):
 
-    ```sh
+```sh
     # NAME         TYPE           CLUSTER-IP       EXTERNAL-IP
     # nginx-lb     LoadBalancer   172.20.26.140    a8abf1179f0a748c9933d9383937c22b-554167943.eu-north-1.elb.amazonaws.com   80:32504/TCP   103s   app=nginx
-    ```
+```
     
     
     
     
-## Install `nginx controller` in aks     
+### Install `nginx controller` in aks
 
 - [nginx controller](https://kubernetes.github.io/ingress-nginx/deploy/#aws).
 
@@ -105,5 +105,4 @@ cd learn-terraform-provision-eks-cluster
     Or you can modify the Host `nginx.yml` this file from `www.nginx-example.io` to `<Ingress LoadBalancer Host>` and access it from Browser.
 
 
-## `User Creation` to access cluster.
-
+### `User Creation` to access cluster.
