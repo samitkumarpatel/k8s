@@ -13,8 +13,15 @@ terraform {
   }
 }
 
+locals {
+  region        = "eu-north-1"
+  name          = "eks"
+  max_node_size = 2
+  min_node_size = 1
+}
+
 provider "aws" {
-  region = "eu-north-1"
+  region = local.region
 }
 
 # VPC
@@ -24,7 +31,7 @@ resource "aws_vpc" "eks_vpc" {
   enable_dns_hostnames = true
 
   tags = {
-    Name = "eks-vpc"
+    Name = "${local.name}-vpc"
   }
 }
 
@@ -42,7 +49,7 @@ resource "aws_subnet" "eks_private" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "eks-private-${count.index + 1}"
+    Name = "${local.name}-private-${count.index + 1}"
   }
 }
 
@@ -55,7 +62,7 @@ resource "aws_subnet" "eks_public" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "eks-public-${count.index + 1}"
+    Name = "${local.name}-public-${count.index + 1}"
   }
 }
 
@@ -64,7 +71,7 @@ resource "aws_internet_gateway" "eks_igw" {
   vpc_id = aws_vpc.eks_vpc.id
 
   tags = {
-    Name = "eks-igw"
+    Name = "${local.name}-igw"
   }
 }
 
@@ -78,7 +85,7 @@ resource "aws_route_table" "eks_public_rt" {
   }
 
   tags = {
-    Name = "eks-public-rt"
+    Name = "${local.name}-public-rt"
   }
 }
 
@@ -90,25 +97,22 @@ resource "aws_route_table_association" "eks_public_rt_assoc" {
 }
 
 # Allocate EIPs for NAT Gateways
-resource "aws_eip" "eks_eip" {
-  count  = 3
-  
+resource "aws_eip" "eks_eip" {  
   domain = "vpc"
 
   tags = {
-    Name = "eks-eip-${count.index + 1}"
+    Name = "${local.name}-eip"
   }
 }
 
 # NAT Gateways
 resource "aws_nat_gateway" "eks_nat_gateway" {
-  count         = 3
   
-  allocation_id = aws_eip.eks_eip[count.index].id
-  subnet_id     = aws_subnet.eks_public[count.index].id
+  allocation_id = aws_eip.eks_eip.id
+  subnet_id     = aws_subnet.eks_public[0].id
 
   tags = {
-    Name = "eks-nat-gateway-${count.index + 1}"
+    Name = "${local.name}-nat-gateway"
   }
 }
 
@@ -118,11 +122,11 @@ resource "aws_route_table" "eks_private_rt" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.eks_nat_gateway[0].id
+    nat_gateway_id = aws_nat_gateway.eks_nat_gateway.id
   }
 
   tags = {
-    Name = "eks-private-rt"
+    Name = "${local.name}-private-rt"
   }
 
 }
@@ -135,7 +139,7 @@ resource "aws_route_table_association" "eks_private_rt_assoc" {
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
-  name = "eks-cluster-role"
+  name = "${local.name}-cluster-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -149,7 +153,7 @@ resource "aws_iam_role" "eks_cluster_role" {
   })
 
   tags = {
-    Name = "eks-cluster-role"
+    Name = "${local.name}-cluster-role"
   }
 }
 
@@ -170,7 +174,7 @@ resource "aws_iam_role_policy_attachment" "eks_vpc_resource_policy" {
 
 
 resource "aws_iam_role" "eks_node_role" {
-  name = "eks-node-role"
+  name = "${local.name}-node-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -184,7 +188,7 @@ resource "aws_iam_role" "eks_node_role" {
   })
 
   tags = {
-    Name = "eks-node-role"
+    Name = "${local.name}-node-role"
   }
 }
 
@@ -205,7 +209,7 @@ resource "aws_iam_role_policy_attachment" "ec2_container_registry_policy" {
 
 
 resource "aws_security_group" "eks_cluster_sg" {
-  name_prefix = "eks-cluster-sg-"
+  name_prefix = "${local.name}-cluster-sg-"
   vpc_id      = aws_vpc.eks_vpc.id
 
   ingress {
@@ -225,12 +229,12 @@ resource "aws_security_group" "eks_cluster_sg" {
   }
 
   tags = {
-    Name = "eks-cluster-sg"
+    Name = "${local.name}-cluster-sg"
   }
 }
 
 resource "aws_security_group" "eks_node_sg" {
-  name_prefix = "eks-node-sg-"
+  name_prefix = "${local.name}-node-sg-"
   vpc_id      = aws_vpc.eks_vpc.id
 
   ingress {
@@ -258,12 +262,12 @@ resource "aws_security_group" "eks_node_sg" {
   }
 
   tags = {
-    Name = "eks-node-sg"
+    Name = "${local.name}-node-sg"
   }
 }
 
 resource "aws_security_group" "eks_app_sg" {
-  name_prefix = "eks-app-sg-"
+  name_prefix = "${local.name}-app-sg-"
   vpc_id      = aws_vpc.eks_vpc.id
 
   ingress {
@@ -291,13 +295,13 @@ resource "aws_security_group" "eks_app_sg" {
   }
 
   tags = {
-    Name = "eks-app-sg"
+    Name = "${local.name}-app-sg"
   }
 }
 
 
 resource "aws_eks_cluster" "eks_cluster" {
-  name     = "my-eks-cluster"
+  name     = "${local.name}-cluster"
   role_arn = aws_iam_role.eks_cluster_role.arn
 
   vpc_config {
@@ -309,7 +313,7 @@ resource "aws_eks_cluster" "eks_cluster" {
   }
 
   tags = {
-    Name = "my-eks-cluster"
+    Name = "${local.name}-cluster"
   }
 }
 
@@ -320,7 +324,7 @@ resource "tls_private_key" "foo" {
 }
 
 resource "aws_key_pair" "foo" {
-  key_name   = "id_rsa"
+  key_name   = "${local.name}_id_rsa"
   public_key = tls_private_key.foo.public_key_openssh
 }
 
@@ -330,6 +334,7 @@ output "ssh_key" {
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
+  
   depends_on = [ 
       aws_subnet.eks_private, 
       aws_route_table.eks_private_rt,
@@ -344,8 +349,8 @@ resource "aws_eks_node_group" "eks_nodes" {
   
   scaling_config {
     desired_size = 1
-    max_size     = 2
-    min_size     = 1
+    max_size     = local.max_node_size
+    min_size     = local.min_node_size
   }
 
   instance_types = ["t3.medium"]
@@ -356,7 +361,7 @@ resource "aws_eks_node_group" "eks_nodes" {
   }
 
   tags = {
-    Name = "eks-node-group"
+    Name = "${local.name}-node-group"
   }
 }
 
