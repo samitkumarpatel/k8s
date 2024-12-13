@@ -1,6 +1,6 @@
 # eks
 
-## Infrastructure Plan
+## eks Infrastructure details
 
 The typical resources required are:
 
@@ -14,7 +14,7 @@ The typical resources required are:
 
 
 - [eks with developer.hashicorp.com](https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks).
-
+- [terraform-aws-modules](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest).
 
 ## Installation
 
@@ -27,11 +27,12 @@ cd learn-terraform-provision-eks-cluster
 ```
 ### eks cluster with eksctl
 
+### eks cluster with awsCli
 
 ### eks cluster with `Terraform resources` -aws provider.
 
 - Infra from scratch with aws eks paas.
-- Navigate to `aws`/`eks`/`v1` folder.
+- Navigate to `aws`/`eks`/`eks-nodegroup` folder from this repository.
 - Make sure you have terraform and aws cli Installed.
 - Command to be execute for cluster Installation and `kubectl` aceess:
     
