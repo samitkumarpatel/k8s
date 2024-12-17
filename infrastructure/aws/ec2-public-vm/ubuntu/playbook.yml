@@ -79,12 +79,17 @@
         remote_src: yes
 
     # Kubernetes installation
+    # - name: Add Kubernetes GPG key
+    #   ansible.builtin.command:
+    #     cmd: curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ KUBERNETES_VERSION }}/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    #     creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
     - name: Add Kubernetes GPG key
-      ansible.builtin.command:
-        cmd: >
-          curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ KUBERNETES_VERSION }}/deb/Release.key |
-          gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-      creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      ansible.builtin.shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ KUBERNETES_VERSION }}/deb/Release.key | \
+        gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      args:
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
     - name: Add Kubernetes repository
       ansible.builtin.apt_repository:
@@ -133,6 +138,8 @@
 - name: Setup Control Plane Node
   hosts: manager
   become: true
+  vars:
+    POD_NETWORK_CIDR: "10.244.0.0/16"
   tasks:
     - name: Check if kubeadm has already initialized the control plane
       ansible.builtin.stat:

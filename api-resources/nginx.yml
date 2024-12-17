@@ -46,40 +46,40 @@ spec:
   #clusterIP: None   # This will create a headless service.
   
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: nginx
-  name: nginx-np
-spec:
-  type: NodePort                # Set the service type to NodePort
-  ports:
-  - name: http
-    port: 80                    # Service's port, accessed via NodePort
-    targetPort: 80              # Container's port (same as containerPort in Deployment)
-    protocol: TCP
-    nodePort: 32080             # Optional: specify a custom NodePort (must be between 30000-32767)
-  selector:
-    app: nginx
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   labels:
+#     app: nginx
+#   name: nginx-np
+# spec:
+#   type: NodePort                # Set the service type to NodePort
+#   ports:
+#   - name: http
+#     port: 80                    # Service's port, accessed via NodePort
+#     targetPort: 80              # Container's port (same as containerPort in Deployment)
+#     protocol: TCP
+#     nodePort: 32080             # Optional: specify a custom NodePort (must be between 30000-32767)
+#   selector:
+#     app: nginx
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: nginx
-  name: nginx-lb
-spec:
-  type: LoadBalancer
-  ports:
-  - name: http
-    port: 80
-    protocol: TCP
-    targetPort: 80
-  selector:
-    app: nginx
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   labels:
+#     app: nginx
+#   name: nginx-lb
+# spec:
+#   type: LoadBalancer
+#   ports:
+#   - name: http
+#     port: 80
+#     protocol: TCP
+#     targetPort: 80
+#   selector:
+#     app: nginx
 
 
 # ingress
