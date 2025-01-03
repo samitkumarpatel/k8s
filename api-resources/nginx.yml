@@ -27,6 +27,8 @@ spec:
           requests:
             cpu: "0.5"
             memory: "100Mi"
+
+# ClusterIp
 ---
 apiVersion: v1
 kind: Service
@@ -45,6 +47,7 @@ spec:
     app: nginx
   #clusterIP: None   # This will create a headless service.
   
+# Node Port
 
 # ---
 # apiVersion: v1
@@ -64,78 +67,79 @@ spec:
 #   selector:
 #     app: nginx
 
+# Load Balancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginx-lb
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+
+
+# # ingress
 # ---
-# apiVersion: v1
-# kind: Service
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
 # metadata:
-#   labels:
-#     app: nginx
-#   name: nginx-lb
+#   name: nginx-ingress-path
+#   annotations:
+#     #nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
+#     nginx.ingress.kubernetes.io/rewrite-target: /
 # spec:
-#   type: LoadBalancer
-#   ports:
-#   - name: http
-#     port: 80
-#     protocol: TCP
-#     targetPort: 80
-#   selector:
-#     app: nginx
-
-
-# ingress
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: nginx-ingress-path
-  annotations:
-    #nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: '*.foo.bar'
-      http:
-       paths:
-       - path: /
-         pathType: Prefix
-         backend:
-          service:
-            name: nginx-cip
-            port:
-              number: 8080
-       - path: /a
-         pathType: Prefix
-         backend:
-          service:
-            name: nginx-cip
-            port:
-              number: 8080
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: nginx-ingress-domain
-  annotations:
-    #nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  ingressClassName: nginx
-  rules:
-  - host: www.nginx-example.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: nginx-cip
-            port:
-              number: 8080
-      - path: /nginx
-        pathType: Prefix
-        backend:
-          service:
-            name: nginx-cip
-            port:
-              number: 8080
+#   ingressClassName: nginx
+#   rules:
+#     - host: '*.foo.bar'
+#       http:
+#        paths:
+#        - path: /
+#          pathType: Prefix
+#          backend:
+#           service:
+#             name: nginx-cip
+#             port:
+#               number: 8080
+#        - path: /a
+#          pathType: Prefix
+#          backend:
+#           service:
+#             name: nginx-cip
+#             port:
+#               number: 8080
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: nginx-ingress-domain
+#   annotations:
+#     #nginx.org/rewrites: 'serviceName=nginx-cip rewrite=/'
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+# spec:
+#   ingressClassName: nginx
+#   rules:
+#   - host: www.nginx-example.io
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: nginx-cip
+#             port:
+#               number: 8080
+#       - path: /nginx
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: nginx-cip
+#             port:
+#               number: 8080

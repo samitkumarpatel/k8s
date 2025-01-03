@@ -49,7 +49,7 @@ resource "aws_subnet" "eksfargate_public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name                                        = "${local.name}-public-${count.index + 1}"
+    Name = "${local.name}-public-${count.index + 1}"
   }
 }
 
@@ -63,7 +63,7 @@ resource "aws_subnet" "eksfargate_private_subnet" {
   map_public_ip_on_launch = false
 
   tags = {
-    "Name"                                      = "${local.name}-private-${count.index + 1}"
+    "Name" = "${local.name}-private-${count.index + 1}"
   }
 }
 
@@ -101,9 +101,9 @@ resource "aws_route_table_association" "eks_public_rt_assoc" {
 
 # NAT Gateway
 resource "aws_eip" "eksfargate_eip" {
-  domain = "vpc"
-  depends_on = [ aws_internet_gateway.eksfargate_igw ]
-  
+  domain     = "vpc"
+  depends_on = [aws_internet_gateway.eksfargate_igw]
+
   tags = {
     Name = "${local.name}-nat-eip"
   }
@@ -126,7 +126,7 @@ resource "aws_route_table" "eksfargate_private_rt" {
   vpc_id = aws_vpc.eksfargate_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.eksfargate_nat.id
   }
 
@@ -176,9 +176,9 @@ resource "aws_iam_role_policy_attachment" "eks-demo-cluster-01-AmazonEKSVPCResou
 
 # EKS Cluster
 resource "aws_eks_cluster" "eksfargate_cluster" {
-  name      = "${local.name}-cluster"
-  version  = 1.31 
-  role_arn  = aws_iam_role.eks-demo-cluster-admin-role-01.arn
+  name     = "${local.name}-cluster"
+  version  = 1.31
+  role_arn = aws_iam_role.eks-demo-cluster-admin-role-01.arn
 
   vpc_config {
     endpoint_private_access = false
@@ -186,13 +186,13 @@ resource "aws_eks_cluster" "eksfargate_cluster" {
     public_access_cidrs     = ["0.0.0.0/0"]
 
     subnet_ids = concat(
-      aws_subnet.eksfargate_private_subnet[*].id, 
+      aws_subnet.eksfargate_private_subnet[*].id,
       aws_subnet.eksfargate_public_subnet[*].id
     )
   }
 
   access_config {
-    authentication_mode = "API_AND_CONFIG_MAP"
+    authentication_mode                         = "API_AND_CONFIG_MAP"
     bootstrap_cluster_creator_admin_permissions = true
   }
 
@@ -203,26 +203,25 @@ resource "aws_eks_cluster" "eksfargate_cluster" {
 }
 
 resource "aws_eks_addon" "eks-demo-addon-coredns" {
-  cluster_name                = aws_eks_cluster.eksfargate_cluster.name
-  addon_name                  = "coredns"
-  #addon_version               = "v1.10.1-eksbuild.4" 
-  resolve_conflicts_on_create = "OVERWRITE" 
+  cluster_name = aws_eks_cluster.eksfargate_cluster.name
+  addon_name   = "coredns"
+  addon_version               = "v1.11.4-eksbuild.1" 
+  resolve_conflicts_on_create = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "eks-demo-addon-kube-proxy" {
-  cluster_name                = aws_eks_cluster.eksfargate_cluster.name
-  addon_name                  = "kube-proxy"
-  #addon_version               = "v1.28.2-eksbuild.2" 
-  resolve_conflicts_on_create = "OVERWRITE" 
+  cluster_name = aws_eks_cluster.eksfargate_cluster.name
+  addon_name   = "kube-proxy"
+  addon_version               = "v1.31.3-eksbuild.2" 
+  resolve_conflicts_on_create = "OVERWRITE"
 }
 
 resource "aws_eks_addon" "eks-demo-addon-vpc-cni" {
-  cluster_name                = aws_eks_cluster.eksfargate_cluster.name
-  addon_name                  = "vpc-cni"
-  #addon_version               = "v1.15.1-eksbuild.1" 
-  resolve_conflicts_on_create = "OVERWRITE" 
+  cluster_name = aws_eks_cluster.eksfargate_cluster.name
+  addon_name   = "vpc-cni"
+  addon_version               = "v1.19.2-eksbuild.1" 
+  resolve_conflicts_on_create = "OVERWRITE"
 }
-
 
 
 # Fargate profile
@@ -247,20 +246,17 @@ resource "aws_iam_role_policy_attachment" "eksfargate_iam_policy_profile" {
 }
 
 resource "aws_eks_fargate_profile" "kube-system" {
-  cluster_name           = aws_eks_cluster.eksfargate_cluster.name
-  fargate_profile_name   = "${local.name}-kube-system"
-  
+  cluster_name         = aws_eks_cluster.eksfargate_cluster.name
+  fargate_profile_name = "eksfargate-kube-system"
+
   pod_execution_role_arn = aws_iam_role.eksfargate_profile.arn
-  
+
   subnet_ids = aws_subnet.eksfargate_private_subnet[*].id
 
   selector {
     namespace = "kube-system"
-    labels = {
-      "k8s-app" = "kube-dns"
-    }
   }
-  
+
   selector {
     namespace = "default"
   }
