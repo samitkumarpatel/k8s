@@ -72,6 +72,8 @@ prerequisites
     - [HA / haproxy]()
     - [traefik]()
 
+## Container vs VM
+![container vs vm ](./.docs/vm-vs-docker.jpeg)
 
 ## Kubernetes Components Overview**
 
