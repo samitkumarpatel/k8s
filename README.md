@@ -30,14 +30,14 @@ prerequisites
 
 ## Kubernetes Administration
 - [cri & kubernetes tools insllation tips](./.docs/kubernetes-1-31-installation.v2.md).
-- [cri](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
+- [Container Runtime Interface | cri](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
     - [containerd](https://github.com/containerd/containerd/blob/main/docs/getting-started.md)
     - [CRI-O](https://cri-o.io/)
     - Docker Engine
         - [docker engine](https://docs.docker.com/engine/install/ubuntu/).
         - [cri-dockerd](https://mirantis.github.io/cri-dockerd/usage/install/).
     - [Mirantis Container Runtime]()
-- [cni](https://github.com/containernetworking/cni)
+- [Container Network Interface | cni](https://github.com/containernetworking/cni)
 
 - [User & RBAC](./.docs/README-user-rbac.md).
 - [kubeconfig](./.docs/README-kube-config.md).
@@ -53,6 +53,11 @@ prerequisites
 
     kubectl run pod -it --image=curlimages/curl -- sh
     ```
+- Tools / Operator
+  - Helm
+  - Kustomize
+  - Hashicorp Vault
+      - Bank Vault     
 
 
 ## Ingress Controller
