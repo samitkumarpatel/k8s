@@ -1,4 +1,4 @@
-**nginx ingress controller by nginxinc**
+## nginx ingress controller by nginxinc
     
 - [Github](https://github.com/nginxinc/kubernetes-ingress/tree/main).
     
@@ -30,7 +30,7 @@
 ```        
 
 
-**nginx ingress controller by kubernetes**
+## nginx ingress controller by kubernetes
     
 - [Github](https://github.com/kubernetes/ingress-nginx/tree/main).
 
