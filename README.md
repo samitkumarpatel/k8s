@@ -68,6 +68,8 @@ prerequisites
         - [Kubernetes nginx](./.docs/README-nginx-ingress.md#nginx-ingress-controller-by-kubernetes)
     - [HA / haproxy]()
     - [traefik]()
+- Example's
+    - [ingress-resources-example](https://github.com/nginx/kubernetes-ingress/tree/main/examples/ingress-resources)
 
 ## Container vs VM
 ![container vs vm ](./.docs/vm-vs-docker.jpeg)
