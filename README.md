@@ -65,7 +65,7 @@ prerequisites
 - [Supported Kubernetes Ingress Class](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
     - nginx
         - [nginx.org](./.docs/README-nginx-ingress.md)
-        - [Kubernetes nginx](./.docs/README-nginx-ingress.md)
+        - [Kubernetes nginx](./.docs/README-nginx-ingress.md#nginx-ingress-controller-by-kubernetes)
     - [HA / haproxy]()
     - [traefik]()
 
