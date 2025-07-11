@@ -3,7 +3,7 @@
 ## Kubernetes documentation
 
 - [https://kubernetes.io](https://kubernetes.io/docs/concepts/overview/components/)
-
+- [Jérôme Petazzoni k8s meterials](https://2021-03-lke.container.training/#1)
 
 ## Kubernetes Infrastructure
 - aws
