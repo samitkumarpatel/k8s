@@ -75,6 +75,12 @@ prerequisites
 ## Operators
 - [bank-vault](https://bank-vaults.dev/)
 
+
+## Controller
+- external-dns
+      - [Reference Video](https://www.youtube.com/watch?v=wLHegOz_aR4)
+      - [Documentation](https://kubernetes-sigs.github.io/external-dns/v0.15.0/)
+
 ## Container vs VM
 ![container vs vm ](./.docs/vm-vs-docker.jpeg)
 
