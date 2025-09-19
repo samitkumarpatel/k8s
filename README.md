@@ -58,7 +58,11 @@ prerequisites
   - Helm
   - Kustomize
   - Hashicorp Vault
-      - Bank Vault     
+      - Bank Vault
+        ```sh
+        # Describe the pod to find where the vault-env command is mounted by the bank-vault sidecar container
+        # The use that command like /vault/vault-env env to see the secrets.
+        ```    
 
 
 ## Ingress Controller
