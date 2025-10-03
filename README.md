@@ -1,13 +1,12 @@
 # k8s
+This repo contain automation, Learning idea for Kubernetes. [About kubernetes component](./.docs/component.md).
 
-[about kubernetes component](./.docs/component.md).
-
-## Kubernetes documentation
+### Documentation
 
 - [https://kubernetes.io](https://kubernetes.io/docs/concepts/overview/components/)
 - [Jérôme Petazzoni k8s meterials](https://2021-03-lke.container.training/#1)
 
-## Kubernetes Infrastructure
+### Infrastructure
 - aws
     - [1 (or more) node cluster with ec2 vm](./infrastructure/aws/ec2-vm/README.md)
     - [1 (or more) node cluster with ec2 public vm](./infrastructure/aws/ec2-public-vm/README.md)
@@ -18,11 +17,12 @@
 - gcp
     - [gcp vm]()
     - [gke]()
-- [kind cluster](https://github.com/samitkumarpatel/kind-k8s-cluster/tree/main)
 
-## Kubernetes Installation
+- [kind cluster](https://github.com/samitkumarpatel/kind-k8s-cluster/tree/main) | [kind local with ingress and lgtm](https://github.com/samitkumarpatel/k8s-local-infra.git)
 
-Get the reference from Kubernetes official documents 
+### Installation PreReq
+
+For more details , always refer to Kubernetes official documents.
 
 prerequisites
     
@@ -31,7 +31,7 @@ prerequisites
 - kubelet
 - kubectl
 
-## Kubernetes Administration
+### Administration
 - [cri & kubernetes tools insllation tips](./.docs/kubernetes-1-31-installation.v2.md).
 - [Container Runtime Interface | cri](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
     - [containerd](https://github.com/containerd/containerd/blob/main/docs/getting-started.md)
@@ -67,7 +67,7 @@ prerequisites
         ```    
 
 
-## Ingress Controller
+### Ingress Controller
 
 - [Supported Kubernetes Ingress Class](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/).
     - nginx
@@ -78,19 +78,19 @@ prerequisites
 - Example's
     - [ingress-resources-example](https://github.com/nginx/kubernetes-ingress/tree/main/examples/ingress-resources)
 
-## Operators
+### Operators
 - [bank-vault](https://bank-vaults.dev/)
 
 
-## Controller
+### Controller
 - external-dns
       - [Reference Video](https://www.youtube.com/watch?v=wLHegOz_aR4)
       - [Documentation](https://kubernetes-sigs.github.io/external-dns/v0.15.0/)
 
-## Container vs VM
+### Container vs VM
 ![container vs vm ](./.docs/vm-vs-docker.jpeg)
 
-## Kubernetes Components Overview**
+### Kubernetes Components Overview**
 
 ![cluster official](./.docs/cluster-components.svg)
 
@@ -107,10 +107,10 @@ Ingress Controller
 ![nginx.](./.docs/nginx-ingress.png)
 
 
-## cka
+### cka
 
 - [cka](./.docs/README-cka.md)
 
-## ckd
+### ckd
 
 - [ckd](./.docs/README-ckd.md)
