@@ -6,7 +6,17 @@ This repo contain automation, Learning idea for Kubernetes. [About kubernetes co
 - [https://kubernetes.io](https://kubernetes.io/docs/concepts/overview/components/)
 - [Jérôme Petazzoni k8s meterials](https://2021-03-lke.container.training/#1)
 
-### Infrastructure
+### Installation PreReq
+
+For more details , always refer to Kubernetes official documents.
+
+[Look for step by step guide](./.docs/on-premise-kubernetes-setup.md)
+
+### [Onprem] - Kubernetes Troubleshooting & Guide
+
+[Onprem Kubernetes Troubleshooting & Guide ](./.docs/kubernetes-troubleshooting-guide.md)
+
+### Infrastructure (Saas vs Installation Your own)
 - aws
     - [1 (or more) node cluster with ec2 vm](./infrastructure/aws/ec2-vm/README.md)
     - [1 (or more) node cluster with ec2 public vm](./infrastructure/aws/ec2-public-vm/README.md)
@@ -19,12 +29,6 @@ This repo contain automation, Learning idea for Kubernetes. [About kubernetes co
     - [gke]()
 
 - [kind cluster](https://github.com/samitkumarpatel/kind-k8s-cluster/tree/main) | [kind local with ingress and lgtm](https://github.com/samitkumarpatel/k8s-local-infra.git)
-
-### Installation PreReq
-
-For more details , always refer to Kubernetes official documents.
-
-[Look for step by step guide](./.docs/on-premise-kubernetes-setup.md)
 
 ### Administration Information & Tips
 - [CRI - Container Runtime Interface | CRI](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
