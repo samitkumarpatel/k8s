@@ -14,7 +14,10 @@ For more details , always refer to Kubernetes official documents.
 
 ### On-Premise Kubernetes: Component Architecture & Troubleshooting Guide
 
-[Onprem Kubernetes Troubleshooting & Guide ](./.docs/kubernetes-troubleshooting-guide.md)
+[Click here for more details ](./.docs/kubernetes-troubleshooting-guide.md)
+
+### Managed Kubernetes (EKS / AKS / GKE): Component Architecture & Troubleshooting Guide
+[Click here for more details ]()
 
 ### Infrastructure (Saas vs On-Premise setup with cloud vm's)
 - aws
