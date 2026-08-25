@@ -24,12 +24,7 @@ This repo contain automation, Learning idea for Kubernetes. [About kubernetes co
 
 For more details , always refer to Kubernetes official documents.
 
-prerequisites
-    
-- Container Runtime (docker or docker-engine is just one. There are many like *CRI-O*, *containerd*, *docker engine* and etc ...
-- kubeadm
-- kubelet
-- kubectl
+[Look for step by step guide](./.docs/on-premise-kubernetes-setup.md)
 
 ### Administration
 - [cri & kubernetes tools insllation tips](./.docs/kubernetes-1-31-installation.v2.md).
