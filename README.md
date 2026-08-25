@@ -26,16 +26,16 @@ For more details , always refer to Kubernetes official documents.
 
 [Look for step by step guide](./.docs/on-premise-kubernetes-setup.md)
 
-### Administration
-- [cri & kubernetes tools insllation tips](./.docs/kubernetes-1-31-installation.v2.md).
-- [Container Runtime Interface | cri](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
+### Administration Information & Tips
+- [CRI - Container Runtime Interface | CRI](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
+    - [CRI-O & containerd insllation tips](./.docs/kubernetes-1-31-installation.v2.md).
     - [containerd](https://github.com/containerd/containerd/blob/main/docs/getting-started.md)
     - [CRI-O](https://cri-o.io/)
     - Docker Engine
         - [docker engine](https://docs.docker.com/engine/install/ubuntu/).
         - [cri-dockerd](https://mirantis.github.io/cri-dockerd/usage/install/).
     - [Mirantis Container Runtime]()
-- [Container Network Interface | cni](https://github.com/containernetworking/cni)
+- [CNI / Container Network Interface](https://github.com/containernetworking/cni)
 
 - [User & RBAC](./.docs/README-user-rbac.md).
 - [kubeconfig](./.docs/README-kube-config.md).
@@ -73,14 +73,13 @@ For more details , always refer to Kubernetes official documents.
 - Example's
     - [ingress-resources-example](https://github.com/nginx/kubernetes-ingress/tree/main/examples/ingress-resources)
 
-### Operators
+### Tools /  Operators
 - [bank-vault](https://bank-vaults.dev/)
 
-
-### Controller
 - external-dns
       - [Reference Video](https://www.youtube.com/watch?v=wLHegOz_aR4)
       - [Documentation](https://kubernetes-sigs.github.io/external-dns/v0.15.0/)
+- cert-manager 
 
 ### Container vs VM
 ![container vs vm ](./.docs/vm-vs-docker.jpeg)
