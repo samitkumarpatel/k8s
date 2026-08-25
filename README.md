@@ -12,11 +12,11 @@ For more details , always refer to Kubernetes official documents.
 
 [Look for step by step guide](./.docs/on-premise-kubernetes-setup.md)
 
-### [Onprem] - Kubernetes Troubleshooting & Guide
+### On-Premise Kubernetes: Component Architecture & Troubleshooting Guide
 
 [Onprem Kubernetes Troubleshooting & Guide ](./.docs/kubernetes-troubleshooting-guide.md)
 
-### Infrastructure (Saas vs Installation Your own)
+### Infrastructure (Saas vs On-Premise setup with cloud vm's)
 - aws
     - [1 (or more) node cluster with ec2 vm](./infrastructure/aws/ec2-vm/README.md)
     - [1 (or more) node cluster with ec2 public vm](./infrastructure/aws/ec2-public-vm/README.md)
